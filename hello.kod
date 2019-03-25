@@ -1,0 +1,36 @@
+-- File: hello.kod
+-- Version: 0.1.
+-- Date: 03/25/2019
+
+*- 
+ Authors:
+ - Lucas Alessio
+ - Lucas Dantas
+ - Matheus Rangel
+ - Tayanne Rocha
+-*
+
+*-
+    root/
+    root/src/hello.kod
+    root/src/happines.kod
+    root/src/math.kod
+    root/lib/universe.kod
+-*
+
+-- Includes
+from "./math" import [floor, ceiling]  -- Include with a list
+from "../lib/universe" import god      -- Include with single element
+import "./happines" as alcohol         -- Include with aliasing
+
+-- Global variables
+let GLOBAL = 10;
+
+-- Main function
+main() : int
+{
+	let local = 0; -- Variables are declared and must be initialized. Type will always be inferred.
+    
+    -- todo: casting, function calling, function definition
+    -- todo: control flows
+}
