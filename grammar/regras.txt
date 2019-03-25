@@ -7,10 +7,10 @@ begin
    if x > 0 then write "ok!"
 end
 
--- Regras LÈxicas (ERs - Tokens correspondentes):
+-- Regras L√©xicas (ERs - Tokens correspondentes):
 
-  $white+                                -- ignore espaÁos
-  "--".*                                 -- ignore coment·rios
+  $white+                                -- ignore espa√ßos
+  "--".*                                 -- ignore coment√°rios
   program                                -- Program
   var                                    -- Var 
   begin                                  -- Begin
@@ -27,6 +27,6 @@ end
   $alpha [$alpha $digit \_ \']*          -- Id s 
   \" $alpha [$alpha $digit ! \_ \']* \"  -- String s
 
--- Resultado do "analisador lÈxico":
+-- Resultado do "analisador l√©xico":
 
 [Program,Id "main",Var,Id "x",Colon,Type "int",SemiColon,Begin,Id "x",Assign,Int 1,SemiColon,If,Id "x",Greater,Int 0,Then,Write,String "\"ok!\"",End]
