@@ -1,7 +1,5 @@
 {
   module Lexer where
-  import System.IO
-  import System.IO.Unsafe 
 }
 
 %wrapper "posn"
@@ -77,7 +75,7 @@ tokens :-
   const { \p s -> Const p }
   $digit+	{ \p s -> ValueInt p (read s) }
   $digit+\.$digit+ { \p s -> ValueFloat p (read s) }
-  $alpha($alpha # $digit # \_)*	  { \p s -> ID p (read s) }
+  $alpha($alpha # $digit # \_)*	  { \p s -> ID p s }
   \" ($graphic # \")*  \"  { \p s -> ValueString p (read s) }
 
 {
@@ -123,6 +121,7 @@ data Token =
   LessEqual AlexPosn  |
   Less AlexPosn  |
   MoreEqual AlexPosn  |
+  More AlexPosn  |
   TypeUInt8 AlexPosn  |
   TypeUInt16 AlexPosn  |
   TypeUInt32 AlexPosn  |
@@ -139,16 +138,11 @@ data Token =
   TypeBoolean AlexPosn  |
   Let AlexPosn        |
   Const AlexPosn |
-  ID AlexPosn  String |
+  ID AlexPosn String |
   ValueInt AlexPosn Int |
   ValueFloat AlexPosn Double |
   ValueString AlexPosn String 
   deriving (Eq,Show)
 
-
-getTokens fn = unsafePerformIO (getTokensAux fn)
-
-getTokensAux fn = do {fh <- openFile fn ReadMode;
-                      s <- hGetContents fh;
-                      return (alexScanTokens s)}
+getTokens s = alexScanTokens s
 }

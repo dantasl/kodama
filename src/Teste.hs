@@ -4,7 +4,9 @@ module Teste (main) where
     import Text.Parsec
     import Control.Monad.IO.Class
     
-    import System.IO.Unsafe
+    import System.IO
 
-main :: IO ()
-main = print (getTokens "exemplo.kod")
+process :: IO ()
+process = do
+    s <- readFile "exemplo.kod"
+    print s

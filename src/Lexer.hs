@@ -2,7 +2,7 @@
 {-# LANGUAGE CPP #-}
 {-# LINE 1 "Lexer.x" #-}
 
-  module Lexer (main, Token(..), AlexPosn(..), alexScanTokens, token_posn) where
+  module Lexer where
 
 #if __GLASGOW_HASKELL__ >= 603
 #include "ghcconfig.h"
@@ -11257,7 +11257,7 @@ alex_actions = array (0 :: Int, 118)
   , (0,alex_action_59)
   ]
 
-{-# LINE 80 "Lexer.x" #-}
+{-# LINE 81 "Lexer.x" #-}
 
 -- Each right-hand side has type :: AlexPosn -> String -> Token
 -- Some action helpers:
@@ -11301,6 +11301,7 @@ data Token =
   LessEqual AlexPosn  |
   Less AlexPosn  |
   MoreEqual AlexPosn  |
+  More AlexPosn  |
   TypeUInt8 AlexPosn  |
   TypeUInt16 AlexPosn  |
   TypeUInt32 AlexPosn  |
@@ -11317,16 +11318,13 @@ data Token =
   TypeBoolean AlexPosn  |
   Let AlexPosn        |
   Const AlexPosn |
-  ID AlexPosn  String |
+  ID AlexPosn String |
   ValueInt AlexPosn Int |
   ValueFloat AlexPosn Double |
   ValueString AlexPosn String 
   deriving (Eq,Show)
 
-
-main = do
-  s <- getContents
-  print (alexScanTokens s)
+getTokens s = alexScanTokens s
 
 alex_action_2 =  \p s -> OpenRound p
 alex_action_3 =  \p s -> CloseRound p
@@ -11384,7 +11382,7 @@ alex_action_54 =  \p s -> Let p
 alex_action_55 =  \p s -> Const p 
 alex_action_56 =  \p s -> ValueInt p (read s) 
 alex_action_57 =  \p s -> ValueFloat p (read s) 
-alex_action_58 =  \p s -> ID p (read s) 
+alex_action_58 =  \p s -> ID p s 
 alex_action_59 =  \p s -> ValueString p (read s) 
 {-# LINE 1 "templates/GenericTemplate.hs" #-}
 {-# LINE 1 "templates/GenericTemplate.hs" #-}
