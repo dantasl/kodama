@@ -29,8 +29,7 @@ let GLOBAL = 10;
 -- Main function
 main() : int
 {
-	let local = 0; -- Variables are declared and must be initialized. Type will always be inferred.
-    
+	let local = 0:int8 -- Variables are declared and must be initialized. Type will always be inferred.
     -- todo: casting, function calling, function definition
     -- todo: control flows
 }

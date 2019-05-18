@@ -1,0 +1,65 @@
+(   OpenRound 
+)   CloseRound
+[   OpenSquare
+]   CloseSquare
+{   OpenCurly
+}   CloseCurly
+:   Colon
+;   SemiColon
+,   Comma
+
++=  PlusAssigment
+-=  MinusAssigment
+/=  DivideAssigment
+*=  MultiplyAssigment
+=   Assigment
++   Plus
+-   Minus
+*   Multiply
+**  Power
+/   Divide
+
+while   While
+for     For
+return  Return
+break   Break
+pass    Pass
+switch  Switch
+case    Case
+
+if      If
+else    Else
+else if ElseIf
+and     And
+or      Or
+not     Not
+!=      NotEqual     
+==      Equal
+<=      LessEqual
+<       Less
+>=      MoreEqual
+>       More
+
+uint16  TypeUInt16
+uint32  TypeUInt32
+uint64  TypeUInt64
+int8    TypeInt8
+int16   TypeInt16
+int32   TypeInt32
+int64   TypeInt64
+flaot16 TypeFloat16
+float32 TypeFloat32
+float64 TypeFloat64
+float128 TypeFloat128
+string  TypeString
+bool    TypeBoolean
+
+let     Let
+const   Const
+
+$alpha ($alpha # $digit # "_")* ID
+$digit+             ValueInt
+
+$digit+\.$digit+    ValueFloat
+\" ($graphic # \")*  \"      ValueString
+
