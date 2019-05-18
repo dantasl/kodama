@@ -1,12 +1,10 @@
-module Teste (main) where
+module Teste where
 
-    import Lexer
-    import Text.Parsec
-    import Control.Monad.IO.Class
-    
-    import System.IO
+import Lexer
+import Text.Parsec
+import Control.Monad.IO.Class
+import System.IO
 
-process :: IO ()
-process = do
-    s <- readFile "exemplo.kod"
-    print s
+galado :: IO ()
+galado = do contents <- readFile "exemplo.kod" -- use '<-' here so that 'contents' is a String
+            print $ getTokens contents -- split on newlines

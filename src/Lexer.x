@@ -9,7 +9,7 @@ $octdig     = [0-7]
 $hexdig     = [0-9A-Fa-f]
 $special    = [\.\;\,\$\|\*\+\?\#\~\-\{\}\(\)\[\]\^\/]
 $graphic    = $printable # $white
-$alpha = [a-zA-F]
+$alpha = [a-zA-Z]
 tokens :-
   $white+                         ;
   "--".*                          ;
@@ -70,12 +70,13 @@ tokens :-
   float128 { \p s -> TypeFloat128 p}
   string { \p s -> TypeString p}
   bool { \p s -> TypeBoolean p}
-
   let { \p s -> Let p }
   const { \p s -> Const p }
+  true {\p s -> ValueBool p True}
+  false {\p s -> ValueBool p False}
   $digit+	{ \p s -> ValueInt p (read s) }
   $digit+\.$digit+ { \p s -> ValueFloat p (read s) }
-  $alpha($alpha # $digit # \_)*	  { \p s -> ID p s }
+  $alpha[$alpha $digit \_]*	  { \p s -> ID p s }
   \" ($graphic # \")*  \"  { \p s -> ValueString p (read s) }
 
 {
@@ -139,6 +140,7 @@ data Token =
   Let AlexPosn        |
   Const AlexPosn |
   ID AlexPosn String |
+  ValueBool AlexPosn Bool |
   ValueInt AlexPosn Int |
   ValueFloat AlexPosn Double |
   ValueString AlexPosn String 

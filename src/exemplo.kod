@@ -1,5 +1,5 @@
 -- Global variables
-let GLOBAL = 10;
+const GGG = 10;
 
 -- Main function
 main() : int
@@ -7,4 +7,6 @@ main() : int
 	let local = 0:int8 -- Variables are declared and must be initialized. Type will always be inferred.
     -- todo: casting, function calling, function definition
     -- todo: control flows
+    true
+    false
 }
