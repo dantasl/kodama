@@ -1,12 +1,6 @@
--- Global variables
-const GGG = 10;
+let x = 10.0;
+let y = 5.0;
+let c = 2;
 
--- Main function
-main() : int
-{
-	let local = 0:int8 -- Variables are declared and must be initialized. Type will always be inferred.
-    -- todo: casting, function calling, function definition
-    -- todo: control flows
-    true
-    false
-}
+--let result = x**2 - y + c;
+--print(result);

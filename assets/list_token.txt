@@ -27,6 +27,10 @@ pass    Pass
 switch  Switch
 case    Case
 
+print   Print
+println Println
+read    Read
+
 if      If
 else    Else
 else if ElseIf

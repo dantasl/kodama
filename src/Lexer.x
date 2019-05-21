@@ -10,6 +10,7 @@ $hexdig     = [0-9A-Fa-f]
 $special    = [\.\;\,\$\|\*\+\?\#\~\-\{\}\(\)\[\]\^\/]
 $graphic    = $printable # $white
 $alpha = [a-zA-Z]
+
 tokens :-
   $white+                         ;
   "--".*                          ;
@@ -42,6 +43,10 @@ tokens :-
   pass { \p s -> Pass p}
   switch { \p s -> Switch p}
   case { \p s -> Case p}
+
+  print { \p s -> Print p}
+  println { \p s -> Println p}
+  read { \p s -> Read p}
 
   if { \p s -> If p}
   else { \p s -> Else p}
@@ -111,6 +116,9 @@ data Token =
   Pass AlexPosn  |
   Switch AlexPosn  |
   Case AlexPosn  |
+  Print AlexPosn  |
+  Println AlexPosn  |
+  Read AlexPosn  |
   If AlexPosn  |
   Else AlexPosn  |
   ElseIf AlexPosn  |

@@ -1,6 +1,0 @@
--- string e operadores
-
-let cidade="Parnamirim";
-let bairo='Centro';
-
-let cb = cidade + bairro;
