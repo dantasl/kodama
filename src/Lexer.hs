@@ -2,7 +2,7 @@
 {-# LANGUAGE CPP #-}
 {-# LINE 1 "Lexer.x" #-}
 
-  module Lexer where
+  module Lexer (Token(..), AlexPosn(..)) where
 
 #if __GLASGOW_HASKELL__ >= 603
 #include "ghcconfig.h"
@@ -22310,11 +22310,11 @@ data Token =
   Colon AlexPosn  |
   SemiColon AlexPosn  |
   Comma AlexPosn  |
-  PlusAssigment AlexPosn  |
-  MinusAssigment AlexPosn  |
-  DivideAssigment AlexPosn  |
-  MultiplyAssigment AlexPosn  |
-  Assigment AlexPosn  |
+  PlusAssignment AlexPosn  |
+  MinusAssignment AlexPosn  |
+  DivideAssignment AlexPosn  |
+  MultiplyAssignment AlexPosn  |
+  Assignment AlexPosn  |
   Plus AlexPosn  |
   Minus AlexPosn  |
   Multiply AlexPosn  |
@@ -22376,11 +22376,11 @@ alex_action_7 =  \p s -> CloseCurly p
 alex_action_8 =  \p s -> Colon p
 alex_action_9 =  \p s -> SemiColon p
 alex_action_10 =  \p s -> Comma p
-alex_action_11 =  \p s -> PlusAssigment p
-alex_action_12 =  \p s -> MinusAssigment p
-alex_action_13 =  \p s ->  DivideAssigment p
-alex_action_14 =  \p s -> MultiplyAssigment p
-alex_action_15 =  \p s -> Assigment p
+alex_action_11 =  \p s -> PlusAssignment p
+alex_action_12 =  \p s -> MinusAssignment p
+alex_action_13 =  \p s ->  DivideAssignment p
+alex_action_14 =  \p s -> MultiplyAssignment p
+alex_action_15 =  \p s -> Assignment p
 alex_action_16 =  \p s -> Plus p
 alex_action_17 =  \p s -> Minus p
 alex_action_18 =  \p s -> Multiply p

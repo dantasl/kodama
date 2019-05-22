@@ -1,5 +1,5 @@
 {
-  module Lexer where
+  module Lexer (Token(..), AlexPosn(..)) where
 }
 
 %wrapper "posn"
@@ -25,11 +25,11 @@ tokens :-
   ";" { \p s -> SemiColon p}
   "," { \p s -> Comma p}
   
-  "+=" { \p s -> PlusAssigment p}
-  "-=" { \p s -> MinusAssigment p}
-  "/=" { \p s ->  DivideAssigment p}
-  "*=" { \p s -> MultiplyAssigment p}
-  "=" { \p s -> Assigment p}
+  "+=" { \p s -> PlusAssignment p}
+  "-=" { \p s -> MinusAssignment p}
+  "/=" { \p s ->  DivideAssignment p}
+  "*=" { \p s -> MultiplyAssignment p}
+  "=" { \p s -> Assignment p}
   "+" { \p s -> Plus p}
   "-" { \p s -> Minus p}
   "*" { \p s -> Multiply p}
@@ -99,11 +99,11 @@ data Token =
   Colon AlexPosn  |
   SemiColon AlexPosn  |
   Comma AlexPosn  |
-  PlusAssigment AlexPosn  |
-  MinusAssigment AlexPosn  |
-  DivideAssigment AlexPosn  |
-  MultiplyAssigment AlexPosn  |
-  Assigment AlexPosn  |
+  PlusAssignment AlexPosn  |
+  MinusAssignment AlexPosn  |
+  DivideAssignment AlexPosn  |
+  MultiplyAssignment AlexPosn  |
+  Assignment AlexPosn  |
   Plus AlexPosn  |
   Minus AlexPosn  |
   Multiply AlexPosn  |
