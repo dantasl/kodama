@@ -2,7 +2,7 @@
 {-# LANGUAGE CPP #-}
 {-# LINE 1 "Lexer.x" #-}
 
-  module Lexer (Token(..), AlexPosn(..)) where
+  module Lexer where
 
 #if __GLASGOW_HASKELL__ >= 603
 #include "ghcconfig.h"
@@ -22294,142 +22294,142 @@ alex_actions = array (0 :: Int, 145)
   , (0,alex_action_64)
   ]
 
-{-# LINE 87 "Lexer.x" #-}
+{-# LINE 84 "Lexer.x" #-}
 
--- Each right-hand side has type :: AlexPosn -> String -> Token
--- Some action helpers:
 
 -- The token type:
-data Token =
-  OpenRound AlexPosn  |
-  CloseRound AlexPosn  |
-  OpenSquare AlexPosn  |
-  CloseSquare AlexPosn  |
-  OpenCurly AlexPosn  |
-  CloseCurly AlexPosn  |
-  Colon AlexPosn  |
-  SemiColon AlexPosn  |
-  Comma AlexPosn  |
-  PlusAssignment AlexPosn  |
-  MinusAssignment AlexPosn  |
-  DivideAssignment AlexPosn  |
-  MultiplyAssignment AlexPosn  |
-  Assignment AlexPosn  |
-  Plus AlexPosn  |
-  Minus AlexPosn  |
-  Multiply AlexPosn  |
-  Power AlexPosn  |
-  Divide AlexPosn  |
-  While AlexPosn  |
-  For AlexPosn  |
-  Return AlexPosn  |
-  Break AlexPosn  |
-  Pass AlexPosn  |
-  Switch AlexPosn  |
-  Case AlexPosn  |
-  Print AlexPosn  |
-  Println AlexPosn  |
-  Read AlexPosn  |
-  If AlexPosn  |
-  Else AlexPosn  |
-  ElseIf AlexPosn  |
-  And AlexPosn  |
-  Or AlexPosn  |
-  Not AlexPosn  |
-  NotEqual AlexPosn  |
-  Equal AlexPosn  |
-  LessEqual AlexPosn  |
-  Less AlexPosn  |
-  MoreEqual AlexPosn  |
-  More AlexPosn  |
-  TypeUInt8 AlexPosn  |
-  TypeUInt16 AlexPosn  |
-  TypeUInt32 AlexPosn  |
-  TypeUInt64 AlexPosn  |
-  TypeInt8 AlexPosn  |
-  TypeInt16 AlexPosn  |
-  TypeInt32 AlexPosn  |
-  TypeInt64 AlexPosn  |
-  TypeFloat16 AlexPosn  |
-  TypeFloat32 AlexPosn  |
-  TypeFloat64 AlexPosn  |
-  TypeFloat128 AlexPosn  |
-  TypeString AlexPosn  |
-  TypeBoolean AlexPosn  |
-  Let AlexPosn        |
-  Const AlexPosn |
-  ID AlexPosn String |
-  ValueBool AlexPosn Bool |
-  ValueInt AlexPosn Int |
-  ValueFloat AlexPosn Double |
-  ValueString AlexPosn String 
-  deriving (Eq,Show)
+data Token = OpenRound (Int, Int)
+           | CloseRound (Int, Int)
+           | OpenSquare (Int, Int)
+           | CloseSquare (Int, Int)
+           | OpenCurly (Int, Int)
+           | CloseCurly (Int, Int)
+           | Colon (Int, Int)
+           | SemiColon (Int, Int)
+           | Comma (Int, Int)
+           | PlusAssignment (Int, Int)
+           | MinusAssignment (Int, Int)
+           | DivideAssignment (Int, Int)
+           | MultiplyAssignment (Int, Int)
+           | Assignment (Int, Int)
+           | Plus (Int, Int)
+           | Minus (Int, Int)
+           | Multiply (Int, Int)
+           | Power (Int, Int)
+           | Divide (Int, Int)
+           | While (Int, Int)
+           | For (Int, Int)
+           | Return (Int, Int)
+           | Break (Int, Int)
+           | Pass (Int, Int)
+           | Switch (Int, Int)
+           | Case (Int, Int)
+           | Print (Int, Int)
+           | Println (Int, Int)
+           | Read (Int, Int)
+           | If (Int, Int)
+           | Else (Int, Int)
+           | ElseIf (Int, Int)
+           | And (Int, Int)
+           | Or (Int, Int)
+           | Not (Int, Int)
+           | NotEqual (Int, Int)
+           | Equal (Int, Int)
+           | LessEqual (Int, Int)
+           | Less (Int, Int)
+           | MoreEqual (Int, Int)
+           | More (Int, Int)
+           | TypeUInt8 (Int, Int)
+           | TypeUInt16 (Int, Int)
+           | TypeUInt32 (Int, Int)
+           | TypeUInt64 (Int, Int)
+           | TypeInt8 (Int, Int)
+           | TypeInt16 (Int, Int)
+           | TypeInt32 (Int, Int)
+           | TypeInt64 (Int, Int)
+           | TypeFloat16 (Int, Int)
+           | TypeFloat32 (Int, Int)
+           | TypeFloat64 (Int, Int)
+           | TypeFloat128 (Int, Int)
+           | TypeString (Int, Int)
+           | TypeBoolean (Int, Int)
+           | Let (Int, Int)
+           | Const (Int, Int)
+           | ID String (Int, Int)
+           | ValueBool Bool (Int, Int)
+           | ValueInt Int (Int, Int)
+           | ValueFloat Double (Int, Int)
+           | ValueString String (Int, Int)
+             deriving (Eq,Show)
 
-getTokens s = alexScanTokens s
+getLineColumn (AlexPn _ l c) = (l, c)
 
-alex_action_2 =  \p s -> OpenRound p
-alex_action_3 =  \p s -> CloseRound p
-alex_action_4 =  \p s -> OpenSquare p
-alex_action_5 =  \p s -> CloseSquare p
-alex_action_6 =  \p s -> OpenCurly p
-alex_action_7 =  \p s -> CloseCurly p
-alex_action_8 =  \p s -> Colon p
-alex_action_9 =  \p s -> SemiColon p
-alex_action_10 =  \p s -> Comma p
-alex_action_11 =  \p s -> PlusAssignment p
-alex_action_12 =  \p s -> MinusAssignment p
-alex_action_13 =  \p s ->  DivideAssignment p
-alex_action_14 =  \p s -> MultiplyAssignment p
-alex_action_15 =  \p s -> Assignment p
-alex_action_16 =  \p s -> Plus p
-alex_action_17 =  \p s -> Minus p
-alex_action_18 =  \p s -> Multiply p
-alex_action_19 =  \p s -> Power p
-alex_action_20 =  \p s -> Divide p
-alex_action_21 =  \p s -> While p
-alex_action_22 =  \p s -> For p
-alex_action_23 =  \p s -> Return p
-alex_action_24 =  \p s -> Break p
-alex_action_25 =  \p s -> Pass p
-alex_action_26 =  \p s -> Switch p
-alex_action_27 =  \p s -> Case p
-alex_action_28 =  \p s -> Print p
-alex_action_29 =  \p s -> Println p
-alex_action_30 =  \p s -> Read p
-alex_action_31 =  \p s -> If p
-alex_action_32 =  \p s -> Else p
-alex_action_33 =  \p s -> ElseIf p
-alex_action_34 =  \p s -> And p
-alex_action_35 =  \p s -> Or p
-alex_action_36 =  \p s -> Not p
-alex_action_37 =  \p s -> NotEqual p
-alex_action_38 =  \p s -> Equal p
-alex_action_39 =  \p s -> LessEqual p
-alex_action_40 =  \p s -> Less p
-alex_action_41 =  \p s -> MoreEqual p
-alex_action_42 =  \p s -> More p
-alex_action_43 =  \p s -> TypeUInt8 p
-alex_action_44 =  \p s -> TypeUInt16 p
-alex_action_45 =  \p s -> TypeUInt32 p
-alex_action_46 =  \p s -> TypeUInt64 p
-alex_action_47 =  \p s -> TypeInt8 p
-alex_action_48 =  \p s -> TypeInt16 p
-alex_action_49 =  \p s -> TypeInt32 p
-alex_action_50 =  \p s -> TypeInt64 p
-alex_action_51 =  \p s -> TypeFloat16 p
-alex_action_52 =  \p s -> TypeFloat32 p
-alex_action_53 =  \p s -> TypeFloat64 p
-alex_action_54 =  \p s -> TypeFloat128 p
-alex_action_55 =  \p s -> TypeString p
-alex_action_56 =  \p s -> TypeBoolean p
-alex_action_57 =  \p s -> Let p 
-alex_action_58 =  \p s -> Const p 
-alex_action_59 = \p s -> ValueBool p True
-alex_action_60 = \p s -> ValueBool p False
-alex_action_61 =  \p s -> ValueInt p (read s) 
-alex_action_62 =  \p s -> ValueFloat p (read s) 
-alex_action_63 =  \p s -> ID p s 
-alex_action_64 =  \p s -> ValueString p (read s) 
+scanTokens s = alexScanTokens s
+
+
+alex_action_2 =  \p s -> OpenRound (getLineColumn p) 
+alex_action_3 =  \p s -> CloseRound (getLineColumn p) 
+alex_action_4 =  \p s -> OpenSquare (getLineColumn p) 
+alex_action_5 =  \p s -> CloseSquare (getLineColumn p) 
+alex_action_6 =  \p s -> OpenCurly (getLineColumn p) 
+alex_action_7 =  \p s -> CloseCurly (getLineColumn p) 
+alex_action_8 =  \p s -> Colon (getLineColumn p) 
+alex_action_9 =  \p s -> SemiColon (getLineColumn p) 
+alex_action_10 =  \p s -> Comma (getLineColumn p) 
+alex_action_11 =  \p s -> PlusAssignment (getLineColumn p) 
+alex_action_12 =  \p s -> MinusAssignment (getLineColumn p) 
+alex_action_13 =  \p s ->  DivideAssignment (getLineColumn p) 
+alex_action_14 =  \p s -> MultiplyAssignment (getLineColumn p) 
+alex_action_15 =  \p s -> Assignment (getLineColumn p) 
+alex_action_16 =  \p s -> Plus (getLineColumn p) 
+alex_action_17 =  \p s -> Minus (getLineColumn p) 
+alex_action_18 =  \p s -> Multiply (getLineColumn p) 
+alex_action_19 =  \p s -> Power (getLineColumn p) 
+alex_action_20 =  \p s -> Divide (getLineColumn p) 
+alex_action_21 =  \p s -> While (getLineColumn p) 
+alex_action_22 =  \p s -> For (getLineColumn p) 
+alex_action_23 =  \p s -> Return (getLineColumn p) 
+alex_action_24 =  \p s -> Break (getLineColumn p) 
+alex_action_25 =  \p s -> Pass (getLineColumn p) 
+alex_action_26 =  \p s -> Switch (getLineColumn p) 
+alex_action_27 =  \p s -> Case (getLineColumn p) 
+alex_action_28 =  \p s -> Print (getLineColumn p) 
+alex_action_29 =  \p s -> Println (getLineColumn p) 
+alex_action_30 =  \p s -> Read (getLineColumn p) 
+alex_action_31 =  \p s -> If (getLineColumn p) 
+alex_action_32 =  \p s -> Else (getLineColumn p) 
+alex_action_33 =  \p s -> ElseIf (getLineColumn p) 
+alex_action_34 =  \p s -> And (getLineColumn p) 
+alex_action_35 =  \p s -> Or (getLineColumn p) 
+alex_action_36 =  \p s -> Not (getLineColumn p) 
+alex_action_37 =  \p s -> NotEqual (getLineColumn p) 
+alex_action_38 =  \p s -> Equal (getLineColumn p) 
+alex_action_39 =  \p s -> LessEqual (getLineColumn p) 
+alex_action_40 =  \p s -> Less (getLineColumn p) 
+alex_action_41 =  \p s -> MoreEqual (getLineColumn p) 
+alex_action_42 =  \p s -> More (getLineColumn p) 
+alex_action_43 =  \p s -> TypeUInt8 (getLineColumn p) 
+alex_action_44 =  \p s -> TypeUInt16 (getLineColumn p) 
+alex_action_45 =  \p s -> TypeUInt32 (getLineColumn p) 
+alex_action_46 =  \p s -> TypeUInt64 (getLineColumn p) 
+alex_action_47 =  \p s -> TypeInt8 (getLineColumn p) 
+alex_action_48 =  \p s -> TypeInt16 (getLineColumn p) 
+alex_action_49 =  \p s -> TypeInt32 (getLineColumn p) 
+alex_action_50 =  \p s -> TypeInt64 (getLineColumn p) 
+alex_action_51 =  \p s -> TypeFloat16 (getLineColumn p) 
+alex_action_52 =  \p s -> TypeFloat32 (getLineColumn p) 
+alex_action_53 =  \p s -> TypeFloat64 (getLineColumn p) 
+alex_action_54 =  \p s -> TypeFloat128 (getLineColumn p) 
+alex_action_55 =  \p s -> TypeString (getLineColumn p) 
+alex_action_56 =  \p s -> TypeBoolean (getLineColumn p) 
+alex_action_57 =  \p s -> Let (getLineColumn p) 
+alex_action_58 =  \p s -> Const (getLineColumn p) 
+alex_action_59 = \p s -> ValueBool True (getLineColumn p) 
+alex_action_60 = \p s -> ValueBool False (getLineColumn p) 
+alex_action_61 =  \p s -> ValueInt (read s) (getLineColumn p) 
+alex_action_62 =  \p s -> ValueFloat (read s) (getLineColumn p) 
+alex_action_63 =  \p s -> ID s (getLineColumn p) 
+alex_action_64 =  \p s -> ValueString (read s) (getLineColumn p) 
 {-# LINE 1 "templates/GenericTemplate.hs" #-}
 {-# LINE 1 "templates/GenericTemplate.hs" #-}
 {-# LINE 1 "<built-in>" #-}

@@ -1,158 +1,155 @@
 {
-  module Lexer (Token(..), AlexPosn(..)) where
+  module Lexer where
 }
 
 %wrapper "posn"
 
-$digit      = [0-9]
-$octdig     = [0-7]
-$hexdig     = [0-9A-Fa-f]
-$special    = [\.\;\,\$\|\*\+\?\#\~\-\{\}\(\)\[\]\^\/]
-$graphic    = $printable # $white
-$alpha = [a-zA-Z]
+$digit    = [0-9]
+$graphic  = $printable # $white
+$alpha    = [a-zA-Z]
 
 tokens :-
   $white+                         ;
   "--".*                          ;
   
-  "(" { \p s -> OpenRound p}
-  ")" { \p s -> CloseRound p}
-  "[" { \p s -> OpenSquare p}
-  "]" { \p s -> CloseSquare p}
-  "{" { \p s -> OpenCurly p}
-  "}" { \p s -> CloseCurly p}
-  ":" { \p s -> Colon p}
-  ";" { \p s -> SemiColon p}
-  "," { \p s -> Comma p}
+  "(" { \p s -> OpenRound (getLineColumn p) }
+  ")" { \p s -> CloseRound (getLineColumn p) }
+  "[" { \p s -> OpenSquare (getLineColumn p) }
+  "]" { \p s -> CloseSquare (getLineColumn p) }
+  "{" { \p s -> OpenCurly (getLineColumn p) }
+  "}" { \p s -> CloseCurly (getLineColumn p) }
+  ":" { \p s -> Colon (getLineColumn p) }
+  ";" { \p s -> SemiColon (getLineColumn p) }
+  "," { \p s -> Comma (getLineColumn p) }
   
-  "+=" { \p s -> PlusAssignment p}
-  "-=" { \p s -> MinusAssignment p}
-  "/=" { \p s ->  DivideAssignment p}
-  "*=" { \p s -> MultiplyAssignment p}
-  "=" { \p s -> Assignment p}
-  "+" { \p s -> Plus p}
-  "-" { \p s -> Minus p}
-  "*" { \p s -> Multiply p}
-  "**" { \p s -> Power p}
-  "/" { \p s -> Divide p}
+  "+=" { \p s -> PlusAssignment (getLineColumn p) }
+  "-=" { \p s -> MinusAssignment (getLineColumn p) }
+  "/=" { \p s ->  DivideAssignment (getLineColumn p) }
+  "*=" { \p s -> MultiplyAssignment (getLineColumn p) }
+  "=" { \p s -> Assignment (getLineColumn p) }
+  "+" { \p s -> Plus (getLineColumn p) }
+  "-" { \p s -> Minus (getLineColumn p) }
+  "*" { \p s -> Multiply (getLineColumn p) }
+  "**" { \p s -> Power (getLineColumn p) }
+  "/" { \p s -> Divide (getLineColumn p) }
   
-  while { \p s -> While p}
-  for { \p s -> For p}
-  return { \p s -> Return p}
-  break { \p s -> Break p}
-  pass { \p s -> Pass p}
-  switch { \p s -> Switch p}
-  case { \p s -> Case p}
+  while { \p s -> While (getLineColumn p) }
+  for { \p s -> For (getLineColumn p) }
+  return { \p s -> Return (getLineColumn p) }
+  break { \p s -> Break (getLineColumn p) }
+  pass { \p s -> Pass (getLineColumn p) }
+  switch { \p s -> Switch (getLineColumn p) }
+  case { \p s -> Case (getLineColumn p) }
 
-  print { \p s -> Print p}
-  println { \p s -> Println p}
-  read { \p s -> Read p}
+  print { \p s -> Print (getLineColumn p) }
+  println { \p s -> Println (getLineColumn p) }
+  read { \p s -> Read (getLineColumn p) }
 
-  if { \p s -> If p}
-  else { \p s -> Else p}
-  else if { \p s -> ElseIf p}
-  and { \p s -> And p}
-  or { \p s -> Or p}
-  not { \p s -> Not p}
-  "!=" { \p s -> NotEqual p}
-  "==" { \p s -> Equal p}
-  "<=" { \p s -> LessEqual p}
-  "<" { \p s -> Less p}
-  ">=" { \p s -> MoreEqual p}
-  ">" { \p s -> More p}
+  if { \p s -> If (getLineColumn p) }
+  else { \p s -> Else (getLineColumn p) }
+  else if { \p s -> ElseIf (getLineColumn p) }
+  and { \p s -> And (getLineColumn p) }
+  or { \p s -> Or (getLineColumn p) }
+  not { \p s -> Not (getLineColumn p) }
+  "!=" { \p s -> NotEqual (getLineColumn p) }
+  "==" { \p s -> Equal (getLineColumn p) }
+  "<=" { \p s -> LessEqual (getLineColumn p) }
+  "<" { \p s -> Less (getLineColumn p) }
+  ">=" { \p s -> MoreEqual (getLineColumn p) }
+  ">" { \p s -> More (getLineColumn p) }
 
-  uint8 { \p s -> TypeUInt8 p}
-  uint16 { \p s -> TypeUInt16 p}
-  uint32 { \p s -> TypeUInt32 p}
-  uint64 { \p s -> TypeUInt64 p}
-  int8 { \p s -> TypeInt8 p}
-  int16 { \p s -> TypeInt16 p}
-  int32 { \p s -> TypeInt32 p}
-  int64 { \p s -> TypeInt64 p}
-  flaot16 { \p s -> TypeFloat16 p}
-  float32 { \p s -> TypeFloat32 p}
-  float64 { \p s -> TypeFloat64 p}
-  float128 { \p s -> TypeFloat128 p}
-  string { \p s -> TypeString p}
-  bool { \p s -> TypeBoolean p}
-  let { \p s -> Let p }
-  const { \p s -> Const p }
-  true {\p s -> ValueBool p True}
-  false {\p s -> ValueBool p False}
-  $digit+	{ \p s -> ValueInt p (read s) }
-  $digit+\.$digit+ { \p s -> ValueFloat p (read s) }
-  $alpha[$alpha $digit \_]*	  { \p s -> ID p s }
-  \" ($graphic # \")*  \"  { \p s -> ValueString p (read s) }
+  uint8 { \p s -> TypeUInt8 (getLineColumn p) }
+  uint16 { \p s -> TypeUInt16 (getLineColumn p) }
+  uint32 { \p s -> TypeUInt32 (getLineColumn p) }
+  uint64 { \p s -> TypeUInt64 (getLineColumn p) }
+  int8 { \p s -> TypeInt8 (getLineColumn p) }
+  int16 { \p s -> TypeInt16 (getLineColumn p) }
+  int32 { \p s -> TypeInt32 (getLineColumn p) }
+  int64 { \p s -> TypeInt64 (getLineColumn p) }
+  flaot16 { \p s -> TypeFloat16 (getLineColumn p) }
+  float32 { \p s -> TypeFloat32 (getLineColumn p) }
+  float64 { \p s -> TypeFloat64 (getLineColumn p) }
+  float128 { \p s -> TypeFloat128 (getLineColumn p) }
+  string { \p s -> TypeString (getLineColumn p) }
+  bool { \p s -> TypeBoolean (getLineColumn p) }
+  let { \p s -> Let (getLineColumn p) }
+  const { \p s -> Const (getLineColumn p) }
+  true {\p s -> ValueBool True (getLineColumn p) }
+  false {\p s -> ValueBool False (getLineColumn p) }
+  $digit+	{ \p s -> ValueInt (read s) (getLineColumn p) }
+  $digit+\.$digit+ { \p s -> ValueFloat (read s) (getLineColumn p) }
+  $alpha[$alpha $digit \_]*	  { \p s -> ID s (getLineColumn p) }
+  \" ($graphic # \")*  \"  { \p s -> ValueString (read s) (getLineColumn p) }
 
 {
--- Each right-hand side has type :: AlexPosn -> String -> Token
--- Some action helpers:
 
 -- The token type:
-data Token =
-  OpenRound AlexPosn  |
-  CloseRound AlexPosn  |
-  OpenSquare AlexPosn  |
-  CloseSquare AlexPosn  |
-  OpenCurly AlexPosn  |
-  CloseCurly AlexPosn  |
-  Colon AlexPosn  |
-  SemiColon AlexPosn  |
-  Comma AlexPosn  |
-  PlusAssignment AlexPosn  |
-  MinusAssignment AlexPosn  |
-  DivideAssignment AlexPosn  |
-  MultiplyAssignment AlexPosn  |
-  Assignment AlexPosn  |
-  Plus AlexPosn  |
-  Minus AlexPosn  |
-  Multiply AlexPosn  |
-  Power AlexPosn  |
-  Divide AlexPosn  |
-  While AlexPosn  |
-  For AlexPosn  |
-  Return AlexPosn  |
-  Break AlexPosn  |
-  Pass AlexPosn  |
-  Switch AlexPosn  |
-  Case AlexPosn  |
-  Print AlexPosn  |
-  Println AlexPosn  |
-  Read AlexPosn  |
-  If AlexPosn  |
-  Else AlexPosn  |
-  ElseIf AlexPosn  |
-  And AlexPosn  |
-  Or AlexPosn  |
-  Not AlexPosn  |
-  NotEqual AlexPosn  |
-  Equal AlexPosn  |
-  LessEqual AlexPosn  |
-  Less AlexPosn  |
-  MoreEqual AlexPosn  |
-  More AlexPosn  |
-  TypeUInt8 AlexPosn  |
-  TypeUInt16 AlexPosn  |
-  TypeUInt32 AlexPosn  |
-  TypeUInt64 AlexPosn  |
-  TypeInt8 AlexPosn  |
-  TypeInt16 AlexPosn  |
-  TypeInt32 AlexPosn  |
-  TypeInt64 AlexPosn  |
-  TypeFloat16 AlexPosn  |
-  TypeFloat32 AlexPosn  |
-  TypeFloat64 AlexPosn  |
-  TypeFloat128 AlexPosn  |
-  TypeString AlexPosn  |
-  TypeBoolean AlexPosn  |
-  Let AlexPosn        |
-  Const AlexPosn |
-  ID AlexPosn String |
-  ValueBool AlexPosn Bool |
-  ValueInt AlexPosn Int |
-  ValueFloat AlexPosn Double |
-  ValueString AlexPosn String 
-  deriving (Eq,Show)
+data Token = OpenRound (Int, Int)
+           | CloseRound (Int, Int)
+           | OpenSquare (Int, Int)
+           | CloseSquare (Int, Int)
+           | OpenCurly (Int, Int)
+           | CloseCurly (Int, Int)
+           | Colon (Int, Int)
+           | SemiColon (Int, Int)
+           | Comma (Int, Int)
+           | PlusAssignment (Int, Int)
+           | MinusAssignment (Int, Int)
+           | DivideAssignment (Int, Int)
+           | MultiplyAssignment (Int, Int)
+           | Assignment (Int, Int)
+           | Plus (Int, Int)
+           | Minus (Int, Int)
+           | Multiply (Int, Int)
+           | Power (Int, Int)
+           | Divide (Int, Int)
+           | While (Int, Int)
+           | For (Int, Int)
+           | Return (Int, Int)
+           | Break (Int, Int)
+           | Pass (Int, Int)
+           | Switch (Int, Int)
+           | Case (Int, Int)
+           | Print (Int, Int)
+           | Println (Int, Int)
+           | Read (Int, Int)
+           | If (Int, Int)
+           | Else (Int, Int)
+           | ElseIf (Int, Int)
+           | And (Int, Int)
+           | Or (Int, Int)
+           | Not (Int, Int)
+           | NotEqual (Int, Int)
+           | Equal (Int, Int)
+           | LessEqual (Int, Int)
+           | Less (Int, Int)
+           | MoreEqual (Int, Int)
+           | More (Int, Int)
+           | TypeUInt8 (Int, Int)
+           | TypeUInt16 (Int, Int)
+           | TypeUInt32 (Int, Int)
+           | TypeUInt64 (Int, Int)
+           | TypeInt8 (Int, Int)
+           | TypeInt16 (Int, Int)
+           | TypeInt32 (Int, Int)
+           | TypeInt64 (Int, Int)
+           | TypeFloat16 (Int, Int)
+           | TypeFloat32 (Int, Int)
+           | TypeFloat64 (Int, Int)
+           | TypeFloat128 (Int, Int)
+           | TypeString (Int, Int)
+           | TypeBoolean (Int, Int)
+           | Let (Int, Int)
+           | Const (Int, Int)
+           | ID String (Int, Int)
+           | ValueBool Bool (Int, Int)
+           | ValueInt Int (Int, Int)
+           | ValueFloat Double (Int, Int)
+           | ValueString String (Int, Int)
+             deriving (Eq,Show)
 
-getTokens s = alexScanTokens s
+getLineColumn (AlexPn _ l c) = (l, c)
+
+scanTokens s = alexScanTokens s
+
 }
