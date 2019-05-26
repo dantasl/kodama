@@ -10,6 +10,11 @@ import System.IO.Unsafe
 type MemoryCell = (Token,Token)
 type Memory = [MemoryCell]
 
+-- funções auxiliares
+
+extractId :: Token -> String
+extractId (ID x p) = x
+
 -- parsers para os tokens
 
 letToken = tokenPrim show update_pos get_token where
@@ -44,8 +49,24 @@ printlnToken = tokenPrim show update_pos get_token where
     get_token (Println p) = Just (Println p)
     get_token _           = Nothing
 
+valueFloatToken :: ParsecT [Token] st IO (Token)
 valueFloatToken = tokenPrim show update_pos get_token where
     get_token (ValueFloat x p) = Just (ValueFloat x p)
+    get_token _           = Nothing
+
+valueIntToken :: ParsecT [Token] st IO (Token)
+valueIntToken = tokenPrim show update_pos get_token where
+    get_token (ValueInt x p) = Just (ValueInt x p)
+    get_token _           = Nothing
+
+valueBoolToken :: ParsecT [Token] st IO (Token)
+valueBoolToken = tokenPrim show update_pos get_token where
+    get_token (ValueBool x p) = Just (ValueBool x p)
+    get_token _           = Nothing
+
+valueStringToken :: ParsecT [Token] st IO (Token)
+valueStringToken = tokenPrim show update_pos get_token where
+    get_token (ValueString x p) = Just (ValueString x p)
     get_token _           = Nothing
 
 update_pos :: SourcePos -> Token -> [Token] -> SourcePos
@@ -69,11 +90,11 @@ stmts = do
 
 varDeclaration :: ParsecT [Token] Memory IO([Token])
 varDeclaration = do
-            a <- letToken
-            b <- idToken
+            a <- (letToken <?> "let")
+            b <- (idToken <?> "identifier")
             c <- assignmentToken
-            d <- valueFloatToken
-            e <- semiColonToken
+            d <- (valueFloatToken <|> valueIntToken)
+            e <- (semiColonToken <?> ";")
             updateState(symtableInsert (b, d))
             return [b,d]
 
@@ -81,7 +102,7 @@ assign :: ParsecT [Token] Memory IO([Token])
 assign = do
             a <- idToken
             b <- assignmentToken
-            c <- valueFloatToken
+            c <- (valueFloatToken <|> valueIntToken)
             d <- semiColonToken
             updateState(symtableUpdate (a, c))
             return [a,c]
@@ -153,7 +174,7 @@ getTokensAux fn = do {fh <- openFile fn ReadMode;
                       return (alexScanTokens s)}
 
 parser :: [Token] -> IO (Either ParseError [Token])
-parser tokens = runParserT program [] "Error message" tokens
+parser tokens = runParserT program [] "Failed" tokens
 
 main :: IO ()
 main = case unsafePerformIO (parser (getTokens "exemplo.kod")) of
