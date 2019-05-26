@@ -7,6 +7,9 @@ import Control.Monad.IO.Class
 import System.IO
 import System.IO.Unsafe
 
+type MemoryCell = (Token,Token)
+type Memory = [MemoryCell]
+
 -- parsers para os tokens
 
 letToken = tokenPrim show update_pos get_token where
@@ -25,6 +28,22 @@ semiColonToken = tokenPrim show update_pos get_token where
     get_token (SemiColon p) = Just (SemiColon p)
     get_token _           = Nothing
 
+openRoundToken = tokenPrim show update_pos get_token where
+    get_token (OpenRound p) = Just (OpenRound p)
+    get_token _           = Nothing
+
+closeRoundToken = tokenPrim show update_pos get_token where
+    get_token (CloseRound p) = Just (CloseRound p)
+    get_token _           = Nothing
+
+printToken = tokenPrim show update_pos get_token where
+    get_token (Print p) = Just (Print p)
+    get_token _           = Nothing
+
+printlnToken = tokenPrim show update_pos get_token where
+    get_token (Println p) = Just (Println p)
+    get_token _           = Nothing
+
 valueFloatToken = tokenPrim show update_pos get_token where
     get_token (ValueFloat x p) = Just (ValueFloat x p)
     get_token _           = Nothing
@@ -35,32 +54,92 @@ update_pos pos _ []      = pos
 
 -- parsers para os não-terminais
 
-program :: ParsecT [Token] [(Token,Token)] IO ([Token])
+program :: ParsecT [Token] Memory IO([Token])
 program = do
             a <- stmts
+            s <- getState
             eof
+            liftIO (print s)
             return (a)
 
-stmts :: ParsecT [Token] [(Token,Token)] IO([Token])
+stmts :: ParsecT [Token] Memory IO([Token])
 stmts = do
-          first <- assign
-          next <- remaining_stmts
-          return (first ++ next)
+          a <- many (varDeclaration <|> assign <|> ioStm)
+          return (concat a)
 
-remaining_stmts :: ParsecT [Token] [(Token,Token)] IO([Token])
-remaining_stmts = (do a <- assign
-                      return (a)) <|> (return [])
-
-assign :: ParsecT [Token] [(Token,Token)] IO([Token])
-assign = do
+varDeclaration :: ParsecT [Token] Memory IO([Token])
+varDeclaration = do
             a <- letToken
             b <- idToken
             c <- assignmentToken
             d <- valueFloatToken
             e <- semiColonToken
-            return ([b,d])
+            updateState(symtableInsert (b, d))
+            return [b,d]
+
+assign :: ParsecT [Token] Memory IO([Token])
+assign = do
+            a <- idToken
+            b <- assignmentToken
+            c <- valueFloatToken
+            d <- semiColonToken
+            updateState(symtableUpdate (a, c))
+            return [a,c]
+
+ioStm :: ParsecT [Token] Memory IO([Token])
+ioStm = do 
+            a <- printStm <|> assign
+            return a
+
+printStm :: ParsecT [Token] Memory IO([Token])
+printStm = do
+            a <- printToken
+            b <- openRoundToken
+            c <- idToken
+            d <- closeRoundToken
+            e <- semiColonToken
+            return [c]
+
+printlnStm :: ParsecT [Token] Memory IO([Token])
+printlnStm = do
+            a <- printlnToken
+            b <- openRoundToken
+            c <- idToken
+            d <- closeRoundToken
+            e <- semiColonToken
+            return [c]
+
+-- funções para verificação de tipos
+
+getDefaultValue :: Token -> Token
+getDefaultValue (TypeInt8 (l, c)) = ValueInt 0 (l, c)
+
+getType :: Token -> Memory -> Token
+getType _ [] = error "Variable not found"
+getType (ID id1 p1) ((ID id2 _, value):t) = if id1 == id2 then value
+                                             else getType (ID id1 p1) t
+
+compatible :: Token -> Token -> Bool
+compatible (ValueInt _ _) (ValueInt _ _) = True
+compatible _ _ = False
 
 -- funções para a tabela de símbolos
+
+symtableInsert :: MemoryCell -> Memory -> Memory
+symtableInsert symbol []  = [symbol]
+symtableInsert symbol symtable = symtable ++ [symbol]
+
+symtableUpdate :: MemoryCell -> Memory -> Memory
+symtableUpdate _ [] = fail "variable not found"
+symtableUpdate (ID id1 p1, v1) ((ID id2 p2, v2):t) = 
+                               if id1 == id2 then (ID id1 p2, v1) : t
+                               else (ID id2 p2, v2) : symtableUpdate (ID id1 p1, v1) t
+
+symtableRemove :: MemoryCell -> Memory -> Memory
+symtableRemove _ [] = fail "variable not found"
+symtableRemove (id1, v1) ((id2, v2):t) = 
+                                if id1 == id2 then t
+                                else (id2, v2) : symtableRemove (id1, v1) t
 
 -- invocação do parser para o símbolo de partida
 
@@ -79,5 +158,5 @@ parser tokens = runParserT program [] "Error message" tokens
 main :: IO ()
 main = case unsafePerformIO (parser (getTokens "exemplo.kod")) of
             { Left err -> print err;
-                Right ans -> print ans
+                Right ans -> print "Finished"
             }

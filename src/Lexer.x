@@ -27,11 +27,12 @@ tokens :-
   "/=" { \p s ->  DivideAssignment (getLineColumn p) }
   "*=" { \p s -> MultiplyAssignment (getLineColumn p) }
   "=" { \p s -> Assignment (getLineColumn p) }
-  "+" { \p s -> Plus (getLineColumn p) }
-  "-" { \p s -> Minus (getLineColumn p) }
-  "*" { \p s -> Multiply (getLineColumn p) }
-  "**" { \p s -> Power (getLineColumn p) }
-  "/" { \p s -> Divide (getLineColumn p) }
+  "+" { \p s -> MathOp s (getLineColumn p) }
+  "-" { \p s -> MathOp s (getLineColumn p) }
+  "*" { \p s -> MathOp s (getLineColumn p) }
+  "**" { \p s -> MathOp s (getLineColumn p) }
+  "/" { \p s -> MathOp s (getLineColumn p) }
+  "mod" { \p s -> MathOp s (getLineColumn p) }
   
   while { \p s -> While (getLineColumn p) }
   for { \p s -> For (getLineColumn p) }
@@ -98,11 +99,7 @@ data Token = OpenRound (Int, Int)
            | DivideAssignment (Int, Int)
            | MultiplyAssignment (Int, Int)
            | Assignment (Int, Int)
-           | Plus (Int, Int)
-           | Minus (Int, Int)
-           | Multiply (Int, Int)
-           | Power (Int, Int)
-           | Divide (Int, Int)
+           | MathOp String (Int, Int)
            | While (Int, Int)
            | For (Int, Int)
            | Return (Int, Int)
