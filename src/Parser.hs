@@ -1,6 +1,7 @@
 module Main (main) where
 
 import Lexer
+import Tokens
 import Text.Parsec
 import Control.Monad.IO.Class
 
@@ -15,72 +16,12 @@ type Memory = [MemoryCell]
 extractId :: Token -> String
 extractId (ID x p) = x
 
--- parsers para os tokens
-
-letToken = tokenPrim show update_pos get_token where
-    get_token (Let p) = Just (Let p)
-    get_token _           = Nothing
-
-idToken = tokenPrim show update_pos get_token where
-    get_token (ID x p) = Just (ID x p)
-    get_token _        = Nothing
-
-assignmentToken = tokenPrim show update_pos get_token where
-    get_token (Assignment p) = Just (Assignment p)
-    get_token _           = Nothing
-
-semiColonToken = tokenPrim show update_pos get_token where
-    get_token (SemiColon p) = Just (SemiColon p)
-    get_token _           = Nothing
-
-openRoundToken = tokenPrim show update_pos get_token where
-    get_token (OpenRound p) = Just (OpenRound p)
-    get_token _           = Nothing
-
-closeRoundToken = tokenPrim show update_pos get_token where
-    get_token (CloseRound p) = Just (CloseRound p)
-    get_token _           = Nothing
-
-printToken = tokenPrim show update_pos get_token where
-    get_token (Print p) = Just (Print p)
-    get_token _           = Nothing
-
-printlnToken = tokenPrim show update_pos get_token where
-    get_token (Println p) = Just (Println p)
-    get_token _           = Nothing
-
-valueFloatToken :: ParsecT [Token] st IO (Token)
-valueFloatToken = tokenPrim show update_pos get_token where
-    get_token (ValueFloat x p) = Just (ValueFloat x p)
-    get_token _           = Nothing
-
-valueIntToken :: ParsecT [Token] st IO (Token)
-valueIntToken = tokenPrim show update_pos get_token where
-    get_token (ValueInt x p) = Just (ValueInt x p)
-    get_token _           = Nothing
-
-valueBoolToken :: ParsecT [Token] st IO (Token)
-valueBoolToken = tokenPrim show update_pos get_token where
-    get_token (ValueBool x p) = Just (ValueBool x p)
-    get_token _           = Nothing
-
-valueStringToken :: ParsecT [Token] st IO (Token)
-valueStringToken = tokenPrim show update_pos get_token where
-    get_token (ValueString x p) = Just (ValueString x p)
-    get_token _           = Nothing
-
-update_pos :: SourcePos -> Token -> [Token] -> SourcePos
-update_pos pos _ (tok:_) = pos -- necessita melhoria
-update_pos pos _ []      = pos  
-
 -- parsers para os não-terminais
 
 program :: ParsecT [Token] Memory IO([Token])
 program = do
             a <- stmts
-            s <- getState
             eof
-            liftIO (print s)
             return (a)
 
 stmts :: ParsecT [Token] Memory IO([Token])
@@ -109,26 +50,54 @@ assign = do
 
 ioStm :: ParsecT [Token] Memory IO([Token])
 ioStm = do 
-            a <- printStm <|> assign
+            a <- printStm <|> printlnStm
             return a
 
 printStm :: ParsecT [Token] Memory IO([Token])
 printStm = do
-            a <- printToken
-            b <- openRoundToken
-            c <- idToken
-            d <- closeRoundToken
-            e <- semiColonToken
+            a <- (printToken <?> "print")
+            b <- (openRoundToken <?> "(")
+            c <- expression
+            d <- (closeRoundToken <?> ")")
+            e <- (semiColonToken <?> ";")
+            liftIO (print c)
             return [c]
 
 printlnStm :: ParsecT [Token] Memory IO([Token])
 printlnStm = do
-            a <- printlnToken
-            b <- openRoundToken
-            c <- idToken
-            d <- closeRoundToken
-            e <- semiColonToken
+            a <- (printlnToken <?> "print")
+            b <- (openRoundToken <?> "(")
+            c <- expression
+            d <- (closeRoundToken <?> ")")
+            e <- (semiColonToken <?> ";")
+            liftIO (print c)
             return [c]
+
+expression :: ParsecT [Token] [(Token,Token)] IO(Token)
+expression = do
+                a <- exprN1
+                b <- (plusToken <|> minusToken)
+                c <- exprN1
+                return (eval a b c)
+
+exprN1 :: ParsecT [Token] [(Token,Token)] IO(Token)
+exprN1 = do
+                a <- exprN2
+                b <- (multiplyToken <|> divideToken)
+                c <- exprN2
+                return (eval a b c)
+
+exprN2 :: ParsecT [Token] [(Token,Token)] IO(Token)
+exprN2 = do
+            a <-(valueFloatToken <|> valueIntToken)
+            return a
+
+-- funções para o avaliador de expressões
+
+eval :: Token -> Token -> Token -> Token
+eval (ValueInt x p) (Plus _) (ValueInt y _) = ValueInt (x + y) p
+eval (ValueInt x p) (Minus _) (ValueInt y _) = ValueInt (x - y) p
+eval (ValueInt x p) (Multiply _) (ValueInt y _) = ValueInt (x * y) p
 
 -- funções para verificação de tipos
 
@@ -179,5 +148,5 @@ parser tokens = runParserT program [] "Failed" tokens
 main :: IO ()
 main = case unsafePerformIO (parser (getTokens "exemplo.kod")) of
             { Left err -> print err;
-                Right ans -> print "Finished"
+                Right ans -> print ans
             }
