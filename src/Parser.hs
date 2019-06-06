@@ -3,14 +3,12 @@ module Main (main) where
 import Lexer
 import Tokens
 import Values
+import Memory
 import Text.Parsec
 import Control.Monad.IO.Class
 
 import System.IO
 import System.IO.Unsafe
-
-type MemoryCell = (Token,Token)
-type Memory = [MemoryCell]
 
 -- funções auxiliares
 
@@ -124,24 +122,6 @@ getType :: Token -> Memory -> Token
 getType _ [] = error "Variable not found"
 getType (ID id1 p1) ((ID id2 _, value):t) = if id1 == id2 then value
                                              else getType (ID id1 p1) t
-
--- funções para a tabela de símbolos
-
-symtableInsert :: MemoryCell -> Memory -> Memory
-symtableInsert symbol []  = [symbol]
-symtableInsert symbol symtable = symtable ++ [symbol]
-
-symtableUpdate :: MemoryCell -> Memory -> Memory
-symtableUpdate _ [] = fail "variable not found"
-symtableUpdate (ID id1 p1, v1) ((ID id2 p2, v2):t) = 
-                               if id1 == id2 then (ID id1 p2, v1) : t
-                               else (ID id2 p2, v2) : symtableUpdate (ID id1 p1, v1) t
-
-symtableRemove :: MemoryCell -> Memory -> Memory
-symtableRemove _ [] = fail "variable not found"
-symtableRemove (id1, v1) ((id2, v2):t) = 
-                                if id1 == id2 then t
-                                else (id2, v2) : symtableRemove (id1, v1) t
 
 -- invocação do parser para o símbolo de partida
 
