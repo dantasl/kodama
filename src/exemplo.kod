@@ -1,6 +1,12 @@
 let x = 10.0;
 let y = 5.0;
 let c = 2;
-println(3*2+1);
-println(c);
+println(3**2+1);
+println(2+4*5);
+println((2+4)*5);
+--println(3 mod 12);
+--println(15/3);
+--println(c);
+--let r = x**2 - y + c;
 --print(x**2 - y + c);
+--print(r);

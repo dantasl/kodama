@@ -93,7 +93,7 @@ exprN1 :: ParsecT [Token] Memory IO(Token)
 exprN1 = do
             try $ do
                 x1 <- exprN2
-                op <- (multiplyToken <|> divideToken)
+                op <- (multiplyToken <|> divideToken <|> modToken)
                 x2 <- exprN2
                 return (eval x1 op x2)
             <|>
@@ -103,8 +103,27 @@ exprN1 = do
 
 exprN2 :: ParsecT [Token] Memory IO(Token)
 exprN2 = do
-            a <-(valueFloatToken <|> valueIntToken)
-            return a
+            try $ do
+                x1 <- exprN3
+                op <- (powerToken)
+                x2 <- exprN3
+                return (eval x1 op x2)
+            <|>
+            do
+                x1 <- exprN3
+                return (x1)
+
+exprN3 :: ParsecT [Token] Memory IO(Token)
+exprN3 = do
+            try $ do
+                a <- openRoundToken
+                b <- expression
+                c <- closeRoundToken
+                return (b)
+            <|>
+            do
+                a <-(valueFloatToken <|> valueIntToken)
+                return (a)
 
 -- funções para o avaliador de expressões
 
@@ -112,6 +131,9 @@ eval :: Token -> Token -> Token -> Token
 eval (ValueInt x p) (Plus _) (ValueInt y _) = ValueInt (x + y) p
 eval (ValueInt x p) (Minus _) (ValueInt y _) = ValueInt (x - y) p
 eval (ValueInt x p) (Multiply _) (ValueInt y _) = ValueInt (x * y) p
+eval (ValueInt x p) (Divide _) (ValueInt y _) = ValueInt (div x y) p
+eval (ValueInt x p) (Mod _) (ValueInt y _) = ValueInt (mod x y) p
+eval (ValueInt x p) (Power _) (ValueInt y _) = ValueInt (x ^ y) p
 
 -- funções para verificação de tipos
 
