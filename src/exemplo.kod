@@ -1,5 +1,6 @@
 let x = 10.0;
 let y = 5.0;
 let c = 2;
-print(3*2+1);
+println(3*2+1);
+println(c);
 --print(x**2 - y + c);

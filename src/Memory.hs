@@ -9,9 +9,11 @@ import Tokens
 type MemoryCell = (Token,Token)
 type Memory = [MemoryCell]
 
-symtableLookup :: Token -> Memory -> Maybe Token
-symtableLookup _ [] = fail "variable not found"
-symtableLookup tok symtable = lookup tok symtable
+symtableLookup :: Token -> Memory -> Token
+symtableLookup _ [] = error "variable not found"
+symtableLookup (ID id1 p1) ((ID id2 p2, value):mem) = 
+                            if id1 == id2 then value
+                            else symtableLookup (ID id1 p1) mem
 
 symtableInsert :: MemoryCell -> Memory -> Memory
 symtableInsert symbol []  = [symbol]

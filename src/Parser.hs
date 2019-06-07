@@ -83,6 +83,11 @@ expression = do
                 do
                     x1 <-exprN1
                     return (x1)
+                <|>
+                do
+                    i <- idToken
+                    s <- getState
+                    return (symtableLookup i s)
 
 exprN1 :: ParsecT [Token] Memory IO(Token)
 exprN1 = do
@@ -95,14 +100,6 @@ exprN1 = do
             do
                 x1 <- exprN2
                 return (x1)
-
-remainingExpression :: Token -> ParsecT [Token] Memory IO(Token)
-remainingExpression n1 = do
-                        op <- (plusToken <|> minusToken)
-                        n2 <- exprN2
-                        result <- remainingExpression (eval n1 op n2)
-                        return (result) 
-                    <|> return (n1)
 
 exprN2 :: ParsecT [Token] Memory IO(Token)
 exprN2 = do
