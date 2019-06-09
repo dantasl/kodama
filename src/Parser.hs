@@ -79,9 +79,19 @@ readStm = do
 expression :: ParsecT [Token] Memory IO(Token)
 expression = do
                 try $ do
+                    a <- mathExpression
+                    return (a)
+                <|>
+                do
+                    a <- valueStringToken
+                    return (a)
+
+mathExpression :: ParsecT [Token] Memory IO(Token)
+mathExpression = do
+                try $ do
                     x1 <- exprN0
                     op <- (plusToken)
-                    x2 <- expression
+                    x2 <- mathExpression
                     return (eval x1 op x2)
                 <|>
                 do

@@ -80,7 +80,7 @@ tokens :-
   $digit+	{ \p s -> ValueInt (read s) (getLineColumn p) }
   $digit+\.$digit+ { \p s -> ValueFloat (read s) (getLineColumn p) }
   $alpha[$alpha $digit \_]*	  { \p s -> ID s (getLineColumn p) }
-  \" ($graphic # \")*  \"  { \p s -> ValueString (read s) (getLineColumn p) }
+  \" [^\"]* \"  { \p s -> ValueString (read s) (getLineColumn p) }
 
 {
 

@@ -1,7 +1,8 @@
 let x = 10.0;
 let y = 5.0;
 let c = 2;
+let oi = "ola mundo";
 
 let result = x**2 - y + c;
 println(result);
-println(-result);
+println(oi);
