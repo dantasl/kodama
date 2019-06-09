@@ -45,6 +45,11 @@ printlnToken = tokenPrim show update_pos get_token where
     get_token (Println p) = Just (Println p)
     get_token _           = Nothing
 
+readToken :: ParsecT [Token] st IO (Token)
+readToken = tokenPrim show update_pos get_token where
+    get_token (Read p) = Just (Read p)
+    get_token _           = Nothing
+
 valueFloatToken :: ParsecT [Token] st IO (Token)
 valueFloatToken = tokenPrim show update_pos get_token where
     get_token (ValueFloat x p) = Just (ValueFloat x p)

@@ -24,8 +24,46 @@ extractValue (ValueInt x p) = Int x
 extractValue (ValueFloat x p) = Float x
 
 compatible :: Token -> Token -> Bool
+compatible (ValueBool _ _) (ValueBool _ _) = True
+compatible (ValueString _ _) (ValueString _ _) = True
 compatible (ValueInt _ _) (ValueInt _ _) = True
+compatible (ValueFloat _ _) (ValueFloat _ _) = True
 compatible _ _ = False
+
+unaryEval :: Token -> Token -> Token
+unaryEval (Minus _) (ValueInt x p) = ValueInt (-x) p
+unaryEval (Minus _) (ValueFloat x p) = ValueFloat (-x) p
+unaryEval _ _ = error "cannot evaluate this expression"
+
+eval :: Token -> Token -> Token -> Token
+eval (ValueInt x p) (Plus _) (ValueInt y _) = ValueInt (x + y) p
+eval (ValueInt x p) (Plus _) (ValueFloat y _) = ValueFloat ((fromIntegral x) + y) p
+eval (ValueFloat x p) (Plus _) (ValueInt y _) = ValueFloat (x + (fromIntegral y)) p
+eval (ValueFloat x p) (Plus _) (ValueFloat y _) = ValueFloat (x + y) p
+
+eval (ValueInt x p) (Minus _) (ValueInt y _) = ValueInt (x - y) p
+eval (ValueInt x p) (Minus _) (ValueFloat y _) = ValueFloat ((fromIntegral x) - y) p
+eval (ValueFloat x p) (Minus _) (ValueInt y _) = ValueFloat (x - (fromIntegral y)) p
+eval (ValueFloat x p) (Minus _) (ValueFloat y _) = ValueFloat (x - y) p
+
+eval (ValueInt x p) (Multiply _) (ValueInt y _) = ValueInt (x * y) p
+eval (ValueInt x p) (Multiply _) (ValueFloat y _) = ValueFloat ((fromIntegral x) * y) p
+eval (ValueFloat x p) (Multiply _) (ValueInt y _) = ValueFloat (x * (fromIntegral y)) p
+eval (ValueFloat x p) (Multiply _) (ValueFloat y _) = ValueFloat (x * y) p
+
+eval (ValueInt x p) (Divide _) (ValueInt y _) = ValueInt (div x y) p
+eval (ValueInt x p) (Divide _) (ValueFloat y _) = ValueFloat ((fromIntegral x) / y) p
+eval (ValueFloat x p) (Divide _) (ValueInt y _) = ValueFloat (x / (fromIntegral y)) p
+eval (ValueFloat x p) (Divide _) (ValueFloat y _) = ValueFloat (x / y) p
+
+eval (ValueInt x p) (Mod _) (ValueInt y _) = ValueInt (mod x y) p
+
+eval (ValueInt x p) (Power _) (ValueInt y _) = ValueInt (x ^ y) p
+eval (ValueInt x p) (Power _) (ValueFloat y _) = ValueFloat ((fromIntegral x) ** y) p
+eval (ValueFloat x p) (Power _) (ValueInt y _) = ValueFloat (x ^^ y) p
+eval (ValueFloat x p) (Power _) (ValueFloat y _) = ValueFloat (x ** y) p
+
+eval _ _ _ = error "cannot evaluate this expression"
 
 getDefaultValue :: Token -> Token
 getDefaultValue (TypeInt8 (l, c)) = ValueInt 0 (l, c)
