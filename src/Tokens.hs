@@ -100,6 +100,21 @@ modToken = tokenPrim show update_pos get_token where
     get_token (Mod p) = Just (Mod p)
     get_token _           = Nothing
 
+andToken :: ParsecT [Token] st IO (Token)
+andToken = tokenPrim show update_pos get_token where
+        get_token (And p) = Just (And p)
+        get_token _           = Nothing
+
+orToken :: ParsecT [Token] st IO (Token)
+orToken = tokenPrim show update_pos get_token where
+    get_token (Or p) = Just (Or p)
+    get_token _           = Nothing
+
+notToken :: ParsecT [Token] st IO (Token)
+notToken = tokenPrim show update_pos get_token where
+    get_token (Not p) = Just (Not p)
+    get_token _           = Nothing
+
 update_pos :: SourcePos -> Token -> [Token] -> SourcePos
 update_pos pos _ (tok:_) = pos -- necessita melhoria
 update_pos pos _ []      = pos  

@@ -82,6 +82,10 @@ expression = do
                     a <- mathExpression
                     return (a)
                 <|>
+                (try $ do
+                    a <- booleanExpression
+                    return (a))
+                <|>
                 do
                     a <- valueStringToken
                     return (a)
@@ -143,7 +147,7 @@ exprN3 = do
             <|>
             (try $ do
                 a <- openRoundToken
-                b <- expression
+                b <- mathExpression
                 c <- closeRoundToken
                 return (b))
             <|>
@@ -154,6 +158,40 @@ exprN3 = do
             <|>
             do
                 a <- (valueFloatToken <|> valueIntToken)
+                return (a)
+
+booleanExpression :: ParsecT [Token] Memory IO(Token)
+booleanExpression = do
+                        try $ do
+                            x1 <- exprB0
+                            op <- (andToken <|> orToken)
+                            x2 <- booleanExpression
+                            return (eval x1 op x2)
+                        <|>
+                        do
+                            x1 <- exprB0
+                            return (x1)
+
+exprB0 :: ParsecT [Token] Memory IO(Token)
+exprB0 = do
+            try $ do
+                a <- notToken
+                b <- exprB0
+                return (unaryEval a b)
+            <|>
+            (try $ do
+                a <- openRoundToken
+                b <- booleanExpression
+                c <- closeRoundToken
+                return (b))
+            <|>
+            do
+                i <- idToken
+                s <- getState
+                return (symtableLookup i s)
+            <|>
+            do
+                a <- (valueBoolToken)
                 return (a)
 
 -- invocação do parser para o símbolo de partida

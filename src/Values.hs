@@ -33,6 +33,9 @@ compatible _ _ = False
 unaryEval :: Token -> Token -> Token
 unaryEval (Minus _) (ValueInt x p) = ValueInt (-x) p
 unaryEval (Minus _) (ValueFloat x p) = ValueFloat (-x) p
+
+unaryEval (Not _) (ValueBool x p) = ValueBool (not x) p
+
 unaryEval _ _ = error "cannot evaluate this expression"
 
 eval :: Token -> Token -> Token -> Token
@@ -62,6 +65,9 @@ eval (ValueInt x p) (Power _) (ValueInt y _) = ValueInt (x ^ y) p
 eval (ValueInt x p) (Power _) (ValueFloat y _) = ValueFloat ((fromIntegral x) ** y) p
 eval (ValueFloat x p) (Power _) (ValueInt y _) = ValueFloat (x ^^ y) p
 eval (ValueFloat x p) (Power _) (ValueFloat y _) = ValueFloat (x ** y) p
+
+eval (ValueBool x p) (And _) (ValueBool y _) = ValueBool (x && y) p
+eval (ValueBool x p) (Or _) (ValueBool y _) = ValueBool (x || y) p
 
 eval _ _ _ = error "cannot evaluate this expression"
 

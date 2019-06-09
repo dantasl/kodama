@@ -2,7 +2,11 @@ let x = 10.0;
 let y = 5.0;
 let c = 2;
 let oi = "ola mundo";
+let t = true;
+let f = false;
 
 let result = x**2 - y + c;
 println(result);
 println(oi);
+println(true and false);
+println(t and f);
