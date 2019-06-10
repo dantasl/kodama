@@ -154,6 +154,8 @@ exprN3 = do
             do
                 i <- idToken
                 s <- getState
+                -- a <- symtableLookup i s
+                -- if compatible a (ValueInt 0 ) 
                 return (symtableLookup i s)
             <|>
             do
