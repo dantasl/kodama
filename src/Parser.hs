@@ -213,3 +213,9 @@ main = case unsafePerformIO (parser (getTokens "exemplo.kod")) of
             { Left err -> print err;
                 Right ans -> print ans
             }
+
+main' :: String -> IO ()
+main' filepath = case unsafePerformIO (parser (getTokens filepath)) of
+            { Left err -> print err;
+                Right ans -> print ans
+            }
