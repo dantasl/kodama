@@ -35,6 +35,26 @@ closeRoundToken = tokenPrim show update_pos get_token where
     get_token (CloseRound p) = Just (CloseRound p)
     get_token _           = Nothing
 
+openCurlyToken :: ParsecT [Token] st IO (Token)
+openCurlyToken = tokenPrim show update_pos get_token where
+    get_token (OpenCurly p) = Just (OpenCurly p)
+    get_token _           = Nothing
+
+closeCurlyToken :: ParsecT [Token] st IO (Token)
+closeCurlyToken = tokenPrim show update_pos get_token where
+    get_token (CloseCurly p) = Just (CloseCurly p)
+    get_token _           = Nothing
+
+ifToken :: ParsecT [Token] st IO (Token)
+ifToken = tokenPrim show update_pos get_token where
+    get_token (If p) = Just (If p)
+    get_token _           = Nothing
+
+elseToken :: ParsecT [Token] st IO (Token)
+elseToken = tokenPrim show update_pos get_token where
+    get_token (Else p) = Just (Else p)
+    get_token _           = Nothing
+
 printToken :: ParsecT [Token] st IO (Token)
 printToken = tokenPrim show update_pos get_token where
     get_token (Print p) = Just (Print p)

@@ -25,22 +25,22 @@ stmts = do
 
 varDeclaration :: ParsecT [Token] Memory IO([Token])
 varDeclaration = do
-            a <- (letToken <?> "let")
-            b <- (idToken <?> "identifier")
-            c <- assignmentToken
-            d <- expression
-            e <- (semiColonToken <?> ";")
-            updateState(symtableInsert (b, d))
-            return [b,d]
+            _ <- (letToken <?> "let")
+            id <- (idToken <?> "identifier")
+            _ <- (assignmentToken <?> "=")
+            value <- expression
+            _ <- (semiColonToken <?> ";")
+            updateState(symtableInsert (id, value))
+            return [id, value]
 
 assign :: ParsecT [Token] Memory IO([Token])
 assign = do
-            a <- idToken
-            b <- assignmentToken
-            c <- expression
-            d <- semiColonToken
-            updateState(symtableUpdate (a, c))
-            return [a,c]
+            id <- idToken
+            _ <- assignmentToken
+            value <- expression
+            _ <- semiColonToken
+            updateState(symtableUpdate (id, value))
+            return [id, value]
 
 ioStm :: ParsecT [Token] Memory IO([Token])
 ioStm = do 
@@ -49,32 +49,32 @@ ioStm = do
 
 printStm :: ParsecT [Token] Memory IO([Token])
 printStm = do
-            a <- (printToken <?> "print")
-            b <- (openRoundToken <?> "(")
-            c <- expression
-            d <- (closeRoundToken <?> ")")
-            e <- (semiColonToken <?> ";")
-            liftIO (putStr (show (extractValue c)))
-            return [c]
+            _ <- (printToken <?> "print")
+            _ <- (openRoundToken <?> "(")
+            e <- expression
+            _ <- (closeRoundToken <?> ")")
+            _ <- (semiColonToken <?> ";")
+            liftIO (putStr (show (extractValue e)))
+            return [e]
 
 printlnStm :: ParsecT [Token] Memory IO([Token])
 printlnStm = do
-            a <- (printlnToken <?> "println")
-            b <- (openRoundToken <?> "(")
-            c <- expression
-            d <- (closeRoundToken <?> ")")
-            e <- (semiColonToken <?> ";")
-            liftIO (print (extractValue c))
-            return [c]
+            _ <- (printlnToken <?> "println")
+            _ <- (openRoundToken <?> "(")
+            e <- expression
+            _ <- (closeRoundToken <?> ")")
+            _ <- (semiColonToken <?> ";")
+            liftIO (print (extractValue e))
+            return [e]
 
 readStm :: ParsecT [Token] Memory IO([Token])
 readStm = do
-            a <- (readToken <?> "read")
-            b <- (openRoundToken <?> "(")
-            c <- (closeRoundToken <?> ")")
-            d <- (semiColonToken <?> ";")
+            _ <- (readToken <?> "read")
+            _ <- (openRoundToken <?> "(")
+            _ <- (closeRoundToken <?> ")")
+            _ <- (semiColonToken <?> ";")
             i <- liftIO (getLine)
-            return [a]
+            return []
 
 expression :: ParsecT [Token] Memory IO(Token)
 expression = do
