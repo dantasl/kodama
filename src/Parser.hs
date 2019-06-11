@@ -20,7 +20,7 @@ program = do
 
 stmts :: ParsecT [Token] Memory IO([Token])
 stmts = do
-          a <- many (varDeclaration <|> assign <|> ioStm)
+          a <- many (varDeclaration <|> assign <|> ioStm <|> ifStm)
           return (concat a)
 
 varDeclaration :: ParsecT [Token] Memory IO([Token])
@@ -193,6 +193,15 @@ exprB0 = do
             do
                 a <- (valueBoolToken)
                 return (a)
+
+ifStm :: ParsecT [Token] Memory IO([Token])
+ifStm = do
+            i <- (ifToken <?> "if")
+            b <- (booleanExpression <?> "expression")
+            _ <- (openCurlyToken <?> "{")
+            s <- stmts
+            _ <- (closeCurlyToken <?> "}")
+            return (s)
 
 -- invocação do parser para o símbolo de partida
 
