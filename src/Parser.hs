@@ -4,6 +4,7 @@ import Lexer
 import Tokens
 import Values
 import Memory
+import Interpreter as Interpreter
 import Text.Parsec
 import Control.Monad.IO.Class
 
@@ -12,83 +13,82 @@ import System.IO.Unsafe
 
 -- parsers para os não-terminais
 
-program :: ParsecT [Token] Memory IO([Token])
+program :: ParsecT [Token] Memory IO([Statement])
 program = do
             a <- stmts
             eof
             return (a)
 
-stmts :: ParsecT [Token] Memory IO([Token])
+stmts :: ParsecT [Token] Memory IO([Statement])
 stmts = do
           a <- many (varDeclaration <|> assign <|> ioStm <|> ifStm)
-          return (concat a)
+          return (a)
 
-varDeclaration :: ParsecT [Token] Memory IO([Token])
+varDeclaration :: ParsecT [Token] Memory IO(Statement)
 varDeclaration = do
             _ <- (letToken <?> "let")
             id <- (idToken <?> "identifier")
             _ <- (assignmentToken <?> "=")
             value <- expression
             _ <- (semiColonToken <?> ";")
-            updateState(symtableInsert (id, value))
-            return [id, value]
+            updateState(symtableInsert (id, extractToken value))
+            return (Interpreter.VarDeclaration id value)
 
-assign :: ParsecT [Token] Memory IO([Token])
+assign :: ParsecT [Token] Memory IO(Statement)
 assign = do
             id <- idToken
             _ <- assignmentToken
             value <- expression
             _ <- semiColonToken
-            updateState(symtableUpdate (id, value))
-            return [id, value]
+            updateState(symtableUpdate (id, extractToken value))
+            return (Interpreter.Assignment id value)
 
-ioStm :: ParsecT [Token] Memory IO([Token])
+ioStm :: ParsecT [Token] Memory IO(Statement)
 ioStm = do 
             a <- printStm <|> printlnStm <|> readStm
             return a
 
-printStm :: ParsecT [Token] Memory IO([Token])
+printStm :: ParsecT [Token] Memory IO(Statement)
 printStm = do
             _ <- (printToken <?> "print")
             _ <- (openRoundToken <?> "(")
             e <- expression
             _ <- (closeRoundToken <?> ")")
             _ <- (semiColonToken <?> ";")
-            liftIO (putStr (show (extractValue e)))
-            return [e]
+            return (Interpreter.Print e)
 
-printlnStm :: ParsecT [Token] Memory IO([Token])
+printlnStm :: ParsecT [Token] Memory IO(Statement)
 printlnStm = do
             _ <- (printlnToken <?> "println")
             _ <- (openRoundToken <?> "(")
             e <- expression
             _ <- (closeRoundToken <?> ")")
             _ <- (semiColonToken <?> ";")
-            liftIO (print (extractValue e))
-            return [e]
+            return (Interpreter.Println e)
 
-readStm :: ParsecT [Token] Memory IO([Token])
+readStm :: ParsecT [Token] Memory IO(Statement)
 readStm = do
+            id <- idToken
+            _ <- assignmentToken
             _ <- (readToken <?> "read")
             _ <- (openRoundToken <?> "(")
             _ <- (closeRoundToken <?> ")")
             _ <- (semiColonToken <?> ";")
-            i <- liftIO (getLine)
-            return []
+            return (Interpreter.Read id)
 
-expression :: ParsecT [Token] Memory IO(Token)
+expression :: ParsecT [Token] Memory IO(Expression)
 expression = do
                 try $ do
                     a <- mathExpression
-                    return (a)
+                    return (MathExpression a)
                 <|>
                 (try $ do
                     a <- booleanExpression
-                    return (a))
+                    return (BooleanExpression a))
                 <|>
                 do
                     a <- valueStringToken
-                    return (a)
+                    return (StringExpression a)
 
 mathExpression :: ParsecT [Token] Memory IO(Token)
 mathExpression = do
@@ -194,14 +194,21 @@ exprB0 = do
                 a <- (valueBoolToken)
                 return (a)
 
-ifStm :: ParsecT [Token] Memory IO([Token])
+ifStm :: ParsecT [Token] Memory IO(Statement)
 ifStm = do
-            i <- (ifToken <?> "if")
+            _ <- (ifToken <?> "if")
             b <- (booleanExpression <?> "expression")
             _ <- (openCurlyToken <?> "{")
-            s <- stmts
+            s1 <- stmts
             _ <- (closeCurlyToken <?> "}")
-            return (s)
+            _ <- (elseToken <?> "else")
+            _ <- (openCurlyToken <?> "{")
+            s2 <- stmts
+            _ <- (closeCurlyToken <?> "}")
+            let bs = BooleanExpression b
+            let cs1 = Chain s1
+            let cs2 = Chain s2
+            return (Interpreter.If bs cs1 cs2)
 
 -- invocação do parser para o símbolo de partida
 
@@ -214,7 +221,7 @@ getTokensAux fn = do {fh <- openFile fn ReadMode;
                       s <- hGetContents fh;
                       return (alexScanTokens s)}
 
-parser :: [Token] -> IO (Either ParseError [Token])
+parser :: [Token] -> IO (Either ParseError [Statement])
 parser tokens = runParserT program [] "Failed" tokens
 
 main :: IO ()

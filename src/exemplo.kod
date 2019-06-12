@@ -4,4 +4,6 @@ if (t) {
     println("dentro do if");
     let a = 2;
     println(a*a);
+} else {
+    
 }
