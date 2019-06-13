@@ -33,6 +33,12 @@ compatible (ValueInt _ _) (ValueInt _ _) = True
 compatible (ValueFloat _ _) (ValueFloat _ _) = True
 compatible _ _ = False
 
+convertStringToValue :: Token -> String -> Token
+convertStringToValue (ValueBool _ p) s = (ValueBool (read s) p)
+convertStringToValue (ValueString _ p) s = (ValueString s p)
+convertStringToValue (ValueInt _ p) s = (ValueInt (read s) p)
+convertStringToValue (ValueFloat _ p) s = (ValueFloat (read s) p)
+
 unaryEval :: Token -> Token -> Token
 unaryEval (Minus _) (ValueInt x p) = ValueInt (-x) p
 unaryEval (Minus _) (ValueFloat x p) = ValueFloat (-x) p

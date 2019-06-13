@@ -36,15 +36,16 @@ varDeclaration = do
 
 assign :: ParsecT [Token] Memory IO(Statement)
 assign = do
-            id <- idToken
-            _ <- assignmentToken
-            value <- expression
-            _ <- semiColonToken
-            return (Interpreter.Assignment id value)
+            try $ do
+                id <- idToken
+                _ <- assignmentToken
+                value <- expression
+                _ <- semiColonToken
+                return (Interpreter.Assignment id value)
 
 ioStm :: ParsecT [Token] Memory IO(Statement)
 ioStm = do 
-            a <- printStm <|> printlnStm <|> readStm
+            a <- (printStm <|> printlnStm <|> readStm <?> "io failed")
             return a
 
 printStm :: ParsecT [Token] Memory IO(Statement)

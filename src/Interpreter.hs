@@ -135,6 +135,13 @@ evalStmts (Println e) = do
     mem <- get
     lift $ print $ extractValue $ evalExpression mem e
 
+evalStmts (Read i) = do
+    mem <- get
+    let oldValue = symtableLookup i mem
+    input <- lift $ getLine
+    let newValue = convertStringToValue oldValue input
+    modify (symtableUpdate (i, newValue))
+
 evalStmts (If b s1 s2) = do
     mem <- get
     if extractBooleanValue $ extractValue $ extractToken mem b

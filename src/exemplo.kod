@@ -1,10 +1,4 @@
-let t = true;
-let a = 2 + 4 - 3;
-let b1 = true and false;
-let b2 = false or true and t;
+let a = True;
 println(a);
-while (t) {
-    println(t);
-    t = false;
-}
-println(t);
+a = read();
+println(a);
