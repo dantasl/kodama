@@ -245,11 +245,6 @@ caseToken = tokenPrim show update_pos get_token where
     get_token (Case p) = Just (Case p)
     get_token _           = Nothing
 
-passToken :: ParsecT [Token] st IO (Token)
-passToken = tokenPrim show update_pos get_token where
-    get_token (Pass p) = Just (Pass p)
-    get_token _           = Nothing
-
 update_pos :: SourcePos -> Token -> [Token] -> SourcePos
 update_pos pos _ (tok:_) = pos -- necessita melhoria
 update_pos pos _ []      = pos  

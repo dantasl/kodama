@@ -6,6 +6,7 @@ import Values
 import Memory
 import Interpreter as Interpreter
 import Text.Parsec
+import Control.Monad.State
 import Control.Monad.IO.Class
 
 import System.IO
@@ -215,6 +216,12 @@ ifStm = do
 printTokens = do contents <- readFile "exemplo.kod"
                  print (scanTokens contents)
 
+printParsedFile :: String -> IO ()
+printParsedFile filepath = case unsafePerformIO (parser (getTokens filepath)) of
+            { Left err -> print err;
+                Right ans -> print ans
+            }
+
 getTokens fn = unsafePerformIO (getTokensAux fn)
 
 getTokensAux fn = do {fh <- openFile fn ReadMode;
@@ -233,5 +240,5 @@ main = case unsafePerformIO (parser (getTokens "exemplo.kod")) of
 main' :: String -> IO ()
 main' filepath = case unsafePerformIO (parser (getTokens filepath)) of
             { Left err -> print err;
-                Right ans -> print ans
+                Right ans -> evalStateT (evaluate ans) []
             }

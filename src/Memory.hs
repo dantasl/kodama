@@ -17,7 +17,7 @@ extractId (ID x p) = x
 -- funções de acesso a memória
 
 symtableLookup :: Token -> Memory -> Token
-symtableLookup _ [] = error "variable not found"
+symtableLookup (ID id1 p1) [] = error $ "variable " ++ id1 ++ "not found"
 symtableLookup (ID id1 p1) ((ID id2 p2, value):mem) = 
                             if id1 == id2 then value
                             else symtableLookup (ID id1 p1) mem
@@ -27,13 +27,13 @@ symtableInsert symbol [] = [symbol]
 symtableInsert symbol symtable = symtable ++ [symbol]
 
 symtableUpdate :: MemoryCell -> Memory -> Memory
-symtableUpdate _ [] = fail "variable not found"
+symtableUpdate (ID id1 p1, v1) [] = fail $ "variable " ++ id1 ++ "not found"
 symtableUpdate (ID id1 p1, v1) ((ID id2 p2, v2):t) = 
                                if id1 == id2 then (ID id1 p2, v1) : t
                                else (ID id2 p2, v2) : symtableUpdate (ID id1 p1, v1) t
 
 symtableRemove :: MemoryCell -> Memory -> Memory
-symtableRemove _ [] = fail "variable not found"
+symtableRemove (ID id1 p1, v1) [] = fail $ "variable " ++ id1 ++ "not found"
 symtableRemove (id1, v1) ((id2, v2):t) = 
                                 if id1 == id2 then t
                                 else (id2, v2) : symtableRemove (id1, v1) t

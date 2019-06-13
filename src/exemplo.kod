@@ -1,9 +1,9 @@
 let t = true;
 
-if (t) {
+if (false) {
     println("dentro do if");
     let a = 2;
     println(a*a);
 } else {
-    
+    print("no else");
 }
