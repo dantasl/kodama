@@ -22,8 +22,8 @@ program = do
 
 stmts :: ParsecT [Token] Memory IO([Statement])
 stmts = do
-          a <- many (varDeclaration <|> assign <|> ioStm <|> ifStm)
-          return (a)
+            a <- many (varDeclaration <|> assign <|> ioStm <|> ifStm <|> whileStm)
+            return (a)
 
 varDeclaration :: ParsecT [Token] Memory IO(Statement)
 varDeclaration = do
@@ -89,62 +89,67 @@ expression = do
                 <|>
                 do
                     a <- valueStringToken
-                    return (StringExpression a)
+                    let sa = SValue a
+                    return (StringExpression sa)
 
-mathExpression :: ParsecT [Token] Memory IO(Token)
+mathExpression :: ParsecT [Token] Memory IO(MExpression)
 mathExpression = do
                 try $ do
                     x1 <- exprN0
                     op <- (plusToken)
                     x2 <- mathExpression
-                    return (eval x1 op x2)
+                    let m = getMathOpFromToken op
+                    return (BinaryMExpression m x1 x2)
                 <|>
                 do
                     x1 <- exprN0
                     return (x1)
 
-exprN0 :: ParsecT [Token] Memory IO(Token)
+exprN0 :: ParsecT [Token] Memory IO(MExpression)
 exprN0 = do
             try $ do
                 x1 <- exprN1
                 op <- (minusToken)
                 x2 <- exprN0
-                return (eval x1 op x2)
+                let m = getMathOpFromToken op
+                return (BinaryMExpression m x1 x2)
             <|>
             do
                 x1 <- exprN1
                 return (x1)
 
-exprN1 :: ParsecT [Token] Memory IO(Token)
+exprN1 :: ParsecT [Token] Memory IO(MExpression)
 exprN1 = do
             try $ do
                 x1 <- exprN2
                 op <- (multiplyToken <|> divideToken <|> modToken)
                 x2 <- exprN1
-                return (eval x1 op x2)
+                let m = getMathOpFromToken op
+                return (BinaryMExpression m x1 x2)
             <|>
             do
                 x1 <- exprN2
                 return (x1)
 
-exprN2 :: ParsecT [Token] Memory IO(Token)
+exprN2 :: ParsecT [Token] Memory IO(MExpression)
 exprN2 = do
             try $ do
                 x1 <- exprN3
                 op <- (powerToken)
                 x2 <- exprN2
-                return (eval x1 op x2)
+                let m = getMathOpFromToken op
+                return (BinaryMExpression m x1 x2)
             <|>
             do
                 x1 <- exprN3
                 return (x1)
 
-exprN3 :: ParsecT [Token] Memory IO(Token)
+exprN3 :: ParsecT [Token] Memory IO(MExpression)
 exprN3 = do
             try $ do
-                a <- minusToken
+                _ <- minusToken
                 b <- exprN3
-                return (unaryEval a b)
+                return (UnaryMExpression Interpreter.Negate b)
             <|>
             (try $ do
                 a <- openRoundToken
@@ -154,46 +159,45 @@ exprN3 = do
             <|>
             do
                 i <- idToken
-                s <- getState
-                return (symtableLookup i s)
+                return (MId i)
             <|>
             do
                 a <- (valueFloatToken <|> valueIntToken)
-                return (a)
+                return (MValue a)
 
-booleanExpression :: ParsecT [Token] Memory IO(Token)
+booleanExpression :: ParsecT [Token] Memory IO(BExpression)
 booleanExpression = do
                         try $ do
                             x1 <- exprB0
                             op <- (andToken <|> orToken)
                             x2 <- booleanExpression
-                            return (eval x1 op x2)
+                            let b = getBooleanOpFromToken op
+                            return (BinaryBExpression b x1 x2)
                         <|>
                         do
                             x1 <- exprB0
                             return (x1)
 
-exprB0 :: ParsecT [Token] Memory IO(Token)
+exprB0 :: ParsecT [Token] Memory IO(BExpression)
 exprB0 = do
             try $ do
-                a <- notToken
+                _ <- notToken
                 b <- exprB0
-                return (unaryEval a b)
+                return (UnaryBExpression Interpreter.Not b)
             <|>
             (try $ do
-                a <- openRoundToken
+                _ <- openRoundToken
                 b <- booleanExpression
-                c <- closeRoundToken
+                _ <- closeRoundToken
                 return (b))
             <|>
             do
                 i <- idToken
-                s <- getState
-                return (symtableLookup i s)
+                return (BId i)
             <|>
             do
                 a <- (valueBoolToken)
-                return (a)
+                return (BValue a)
 
 ifStm :: ParsecT [Token] Memory IO(Statement)
 ifStm = do
@@ -211,10 +215,22 @@ ifStm = do
             let cs2 = Chain s2
             return (Interpreter.If bs cs1 cs2)
 
+whileStm :: ParsecT [Token] Memory IO(Statement)
+whileStm = do
+                _ <- (whileToken <?> "while")
+                b <- (booleanExpression <?> "expression")
+                _ <- (openCurlyToken <?> "{")
+                s <- stmts
+                _ <- (closeCurlyToken <?> "}")
+                let bs = BooleanExpression b
+                let cs = Chain s
+                return (Interpreter.While bs cs)
+
 -- invocação do parser para o símbolo de partida
 
-printTokens = do contents <- readFile "exemplo.kod"
-                 print (scanTokens contents)
+printTokens = do
+                contents <- readFile "exemplo.kod"
+                print (scanTokens contents)
 
 printParsedFile :: String -> IO ()
 printParsedFile filepath = case unsafePerformIO (parser (getTokens filepath)) of
@@ -225,8 +241,8 @@ printParsedFile filepath = case unsafePerformIO (parser (getTokens filepath)) of
 getTokens fn = unsafePerformIO (getTokensAux fn)
 
 getTokensAux fn = do {fh <- openFile fn ReadMode;
-                      s <- hGetContents fh;
-                      return (alexScanTokens s)}
+                        s <- hGetContents fh;
+                        return (alexScanTokens s)}
 
 parser :: [Token] -> IO (Either ParseError [Statement])
 parser tokens = runParserT program [] "Failed" tokens
