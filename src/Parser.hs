@@ -32,7 +32,6 @@ varDeclaration = do
             _ <- (assignmentToken <?> "=")
             value <- expression
             _ <- (semiColonToken <?> ";")
-            updateState(symtableInsert (id, extractToken value))
             return (Interpreter.VarDeclaration id value)
 
 assign :: ParsecT [Token] Memory IO(Statement)
@@ -41,7 +40,6 @@ assign = do
             _ <- assignmentToken
             value <- expression
             _ <- semiColonToken
-            updateState(symtableUpdate (id, extractToken value))
             return (Interpreter.Assignment id value)
 
 ioStm :: ParsecT [Token] Memory IO(Statement)

@@ -23,6 +23,9 @@ extractValue (ValueString x p) = String x
 extractValue (ValueInt x p) = Int x
 extractValue (ValueFloat x p) = Float x
 
+extractBooleanValue :: Value -> Bool
+extractBooleanValue (Bool x) = x
+
 compatible :: Token -> Token -> Bool
 compatible (ValueBool _ _) (ValueBool _ _) = True
 compatible (ValueString _ _) (ValueString _ _) = True
