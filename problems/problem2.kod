@@ -11,19 +11,19 @@ while (true)
     {
         break;
     }    
-    if (inpur_usuario >= 0 and input_usuario <= 25)
+    if (input_usuario >= 0 and input_usuario <= 25)
     {
         intervalo_um = intervalo_um + 1;
     }
-    else if (inpur_usuario >= 26 and input_usuario <= 50)
+    else if (input_usuario >= 26 and input_usuario <= 50)
     {
         intervalo_dois = intervalo_dois + 1;
     }
-    else if (inpur_usuario >= 51 and input_usuario <= 75)
+    else if (input_usuario >= 51 and input_usuario <= 75)
     {
         intervalo_tres = intervalo_tres + 1;
     }
-    else if (inpur_usuario >= 76 and input_usuario <= 100)
+    else if (input_usuario >= 76 and input_usuario <= 100)
     {
         intervalo_quatro = intervalo_quatro + 1;
     }
