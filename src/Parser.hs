@@ -16,14 +16,14 @@ import System.IO.Unsafe
 
 program :: ParsecT [Token] Memory IO([Statement])
 program = do
-            a <- stmts
+            a <- many stmts
             eof
             return (a)
 
-stmts :: ParsecT [Token] Memory IO([Statement])
+stmts :: ParsecT [Token] Memory IO(Statement)
 stmts = do
-            a <- many (varDeclaration <|> assign <|> ioStm <|> ifStm <|> whileStm)
-            return (a)
+          a <- choice [(try ioStm), (try varDeclaration), (try assign), (try ifStm), (try whileStm)]
+          return (a)
 
 varDeclaration :: ParsecT [Token] Memory IO(Statement)
 varDeclaration = do
@@ -36,16 +36,15 @@ varDeclaration = do
 
 assign :: ParsecT [Token] Memory IO(Statement)
 assign = do
-            try $ do
-                id <- idToken
-                _ <- assignmentToken
-                value <- expression
-                _ <- semiColonToken
-                return (Interpreter.Assignment id value)
+            id <- idToken
+            _ <- assignmentToken
+            value <- expression
+            _ <- semiColonToken
+            return (Interpreter.Assignment id value)
 
 ioStm :: ParsecT [Token] Memory IO(Statement)
 ioStm = do 
-            a <- (printStm <|> printlnStm <|> readStm <?> "io failed")
+            a <- choice [readStm, printStm, printlnStm]
             return a
 
 printStm :: ParsecT [Token] Memory IO(Statement)
@@ -68,28 +67,52 @@ printlnStm = do
 
 readStm :: ParsecT [Token] Memory IO(Statement)
 readStm = do
-            id <- idToken
+            i <- idToken
             _ <- assignmentToken
             _ <- (readToken <?> "read")
             _ <- (openRoundToken <?> "(")
             _ <- (closeRoundToken <?> ")")
             _ <- (semiColonToken <?> ";")
-            return (Interpreter.Read id)
+            return (Interpreter.Read i)
 
 expression :: ParsecT [Token] Memory IO(Expression)
 expression = do
-                try $ do
-                    a <- mathExpression
-                    return (MathExpression a)
-                <|>
-                (try $ do
-                    a <- booleanExpression
-                    return (BooleanExpression a))
+                do
+                    try $ do
+                        a <- mathExpression
+                        return (MathExpression a)
                 <|>
                 do
-                    a <- valueStringToken
-                    let sa = SValue a
-                    return (StringExpression sa)
+                    try $ do
+                        a <- booleanExpression
+                        return (BooleanExpression a)
+                <|>
+                do
+                    try $ do
+                        a <- stringExpression
+                        return (StringExpression a)
+
+stringExpression :: ParsecT [Token] Memory IO(SExpression)
+stringExpression = do
+                    (try $ do
+                        x1 <- exprS0
+                        op <- plusToken
+                        x2 <- stringExpression
+                        return (BinarySExpression Interpreter.Concat x1 x2))
+                    <|>
+                    do
+                        x1 <- exprS0
+                        return (x1)
+
+exprS0 :: ParsecT [Token] Memory IO(SExpression)
+exprS0 = do
+            try $ do
+                i <- idToken
+                return (SId i)
+            <|>
+            do
+                a <- valueStringToken
+                return (SValue a)
 
 mathExpression :: ParsecT [Token] Memory IO(MExpression)
 mathExpression = do
@@ -177,6 +200,14 @@ booleanExpression = do
                             x1 <- exprB0
                             return (x1)
 
+booleanRelationalExpression :: ParsecT [Token] Memory IO(BExpression)
+booleanRelationalExpression = do
+                                x1 <- mathExpression
+                                op <- (lessEqualToken <|> lessToken <|> moreEqualToken <|> moreToken)
+                                x2 <- mathExpression
+                                let r = getRelationalOpFromToken op
+                                return (BinaryRExpression r x1 x2)
+
 exprB0 :: ParsecT [Token] Memory IO(BExpression)
 exprB0 = do
             try $ do
@@ -190,9 +221,13 @@ exprB0 = do
                 _ <- closeRoundToken
                 return (b))
             <|>
-            do
+            (try $ do
+                a <- booleanRelationalExpression
+                return (a))
+            <|>
+            (try $ do
                 i <- idToken
-                return (BId i)
+                return (BId i))
             <|>
             do
                 a <- (valueBoolToken)
@@ -201,13 +236,13 @@ exprB0 = do
 ifStm :: ParsecT [Token] Memory IO(Statement)
 ifStm = do
             _ <- (ifToken <?> "if")
-            b <- (booleanExpression <?> "expression")
+            b <- (booleanExpression <?> "boolean expression")
             _ <- (openCurlyToken <?> "{")
-            s1 <- stmts
+            s1 <- many stmts
             _ <- (closeCurlyToken <?> "}")
             _ <- (elseToken <?> "else")
             _ <- (openCurlyToken <?> "{")
-            s2 <- stmts
+            s2 <- many stmts
             _ <- (closeCurlyToken <?> "}")
             let bs = BooleanExpression b
             let cs1 = Chain s1
@@ -217,9 +252,9 @@ ifStm = do
 whileStm :: ParsecT [Token] Memory IO(Statement)
 whileStm = do
                 _ <- (whileToken <?> "while")
-                b <- (booleanExpression <?> "expression")
+                b <- (booleanExpression <?> "boolean expression")
                 _ <- (openCurlyToken <?> "{")
-                s <- stmts
+                s <- many stmts
                 _ <- (closeCurlyToken <?> "}")
                 let bs = BooleanExpression b
                 let cs = Chain s

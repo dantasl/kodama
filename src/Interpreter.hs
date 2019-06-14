@@ -29,6 +29,14 @@ data BooleanOperator = And
                      | Not
                      deriving (Show)
 
+data RelationalOperator = Less
+                        | LessEqual
+                        | More
+                        | MoreEqual
+                        deriving (Show)
+
+data StringOperator = Concat deriving (Show)
+
 data MExpression = MValue Lexer.Token
                  | MId Lexer.Token
                  | UnaryMExpression MathOperator MExpression
@@ -39,10 +47,12 @@ data BExpression = BValue Lexer.Token
                  | BId Lexer.Token
                  | UnaryBExpression BooleanOperator BExpression
                  | BinaryBExpression BooleanOperator BExpression BExpression
+                 | BinaryRExpression RelationalOperator MExpression MExpression
                  deriving (Show)
 
 data SExpression = SValue Lexer.Token
                  | SId Lexer.Token
+                 | BinarySExpression StringOperator SExpression SExpression
                     deriving (Show)
 
 data Statement = Assignment Lexer.Token Expression
@@ -59,6 +69,12 @@ getBooleanOpFromToken :: Lexer.Token -> BooleanOperator
 getBooleanOpFromToken (Lexer.And _) = And
 getBooleanOpFromToken (Lexer.Or _) = Or
 getBooleanOpFromToken (Lexer.Not _) = Not
+
+getRelationalOpFromToken :: Lexer.Token -> RelationalOperator
+getRelationalOpFromToken (Lexer.Less _) = Less
+getRelationalOpFromToken (Lexer.LessEqual _) = LessEqual
+getRelationalOpFromToken (Lexer.More _) = More
+getRelationalOpFromToken (Lexer.MoreEqual _) = MoreEqual
 
 getMathOpFromToken :: Lexer.Token -> MathOperator
 getMathOpFromToken (Lexer.Plus _) = Addition
@@ -91,11 +107,13 @@ evalExpression mem (BooleanExpression be) =
         (BId i) -> symtableLookup i mem
         (UnaryBExpression op e) -> evalUnaryBExpression mem op e
         (BinaryBExpression op x1 x2) -> evalBinaryBExpression mem op x1 x2
+        (BinaryRExpression op x1 x2) -> evalBinaryRExpression mem op x1 x2
 
 evalExpression mem (StringExpression se) = 
     case se of
         (SValue v) -> v
         (SId i) -> symtableLookup i mem
+        (BinarySExpression op x1 x2) -> evalBinarySExpression mem op x1 x2
 
 evalUnaryMExpression :: Memory -> MathOperator -> MExpression -> Lexer.Token
 evalUnaryMExpression mem Negate exp = (unaryEval (Lexer.Minus (0,0)) (evalExpression mem (MathExpression exp)))
@@ -114,6 +132,15 @@ evalUnaryBExpression mem Not exp = (unaryEval (Lexer.Not (0,0)) (evalExpression 
 evalBinaryBExpression :: Memory -> BooleanOperator -> BExpression -> BExpression -> Lexer.Token
 evalBinaryBExpression mem And exp1 exp2 = (eval (evalExpression mem (BooleanExpression exp1)) (Lexer.And (0,0)) (evalExpression mem (BooleanExpression exp2)))
 evalBinaryBExpression mem Or exp1 exp2 = (eval (evalExpression mem (BooleanExpression exp1)) (Lexer.Or (0,0)) (evalExpression mem (BooleanExpression exp2)))
+
+evalBinaryRExpression :: Memory -> RelationalOperator -> MExpression -> MExpression -> Lexer.Token
+evalBinaryRExpression mem Less exp1 exp2 = (eval (evalExpression mem (MathExpression exp1)) (Lexer.Less (0,0)) (evalExpression mem (MathExpression exp2)))
+evalBinaryRExpression mem LessEqual exp1 exp2 = (eval (evalExpression mem (MathExpression exp1)) (Lexer.LessEqual (0,0)) (evalExpression mem (MathExpression exp2)))
+evalBinaryRExpression mem More exp1 exp2 = (eval (evalExpression mem (MathExpression exp1)) (Lexer.More (0,0)) (evalExpression mem (MathExpression exp2)))
+evalBinaryRExpression mem MoreEqual exp1 exp2 = (eval (evalExpression mem (MathExpression exp1)) (Lexer.MoreEqual (0,0)) (evalExpression mem (MathExpression exp2)))
+
+evalBinarySExpression :: Memory -> StringOperator -> SExpression -> SExpression -> Lexer.Token
+evalBinarySExpression mem Concat exp1 exp2 = (eval (evalExpression mem (StringExpression exp1)) (Lexer.Plus (0,0)) (evalExpression mem (StringExpression exp2)))
 
 evalStmts :: Statement -> StateT Memory IO ()
 

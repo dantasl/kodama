@@ -78,6 +78,34 @@ eval (ValueFloat x p) (Power _) (ValueFloat y _) = ValueFloat (x ** y) p
 eval (ValueBool x p) (And _) (ValueBool y _) = ValueBool (x && y) p
 eval (ValueBool x p) (Or _) (ValueBool y _) = ValueBool (x || y) p
 
+eval (ValueInt x p) (Less _) (ValueInt y _) = ValueBool (x < y) p
+eval (ValueInt x p) (Less _) (ValueFloat y _) = ValueBool ((fromIntegral x) < y) p
+eval (ValueFloat x p) (Less _) (ValueInt y _) = ValueBool (x < (fromIntegral y)) p
+eval (ValueFloat x p) (Less _) (ValueFloat y _) = ValueBool (x < y) p
+
+eval (ValueInt x p) (LessEqual _) (ValueInt y _) = ValueBool (x <= y) p
+eval (ValueInt x p) (LessEqual _) (ValueFloat y _) = ValueBool ((fromIntegral x) <= y) p
+eval (ValueFloat x p) (LessEqual _) (ValueInt y _) = ValueBool (x <= (fromIntegral y)) p
+eval (ValueFloat x p) (LessEqual _) (ValueFloat y _) = ValueBool (x <= y) p
+
+eval (ValueInt x p) (More _) (ValueInt y _) = ValueBool (x > y) p
+eval (ValueInt x p) (More _) (ValueFloat y _) = ValueBool ((fromIntegral x) > y) p
+eval (ValueFloat x p) (More _) (ValueInt y _) = ValueBool (x > (fromIntegral y)) p
+eval (ValueFloat x p) (More _) (ValueFloat y _) = ValueBool (x > y) p
+
+eval (ValueInt x p) (MoreEqual _) (ValueInt y _) = ValueBool (x >= y) p
+eval (ValueInt x p) (MoreEqual _) (ValueFloat y _) = ValueBool ((fromIntegral x) >= y) p
+eval (ValueFloat x p) (MoreEqual _) (ValueInt y _) = ValueBool (x >= (fromIntegral y)) p
+eval (ValueFloat x p) (MoreEqual _) (ValueFloat y _) = ValueBool (x >= y) p
+
+eval (ValueString x p) (Plus _) (ValueString y _) = ValueString (x ++ y) p
+eval (ValueString x p) (Plus _) (ValueInt y _) = ValueString (x ++ (show y)) p
+eval (ValueString x p) (Plus _) (ValueFloat y _) = ValueString (x ++ (show y)) p
+eval (ValueString x p) (Plus _) (ValueBool y _) = ValueString (x ++ (show y)) p
+eval (ValueInt x p) (Plus _) (ValueString y _) = ValueString ((show x) ++ y) p
+eval (ValueFloat x p) (Plus _) (ValueString y _) = ValueString ((show x) ++ y) p
+eval (ValueBool x p) (Plus _) (ValueString y _) = ValueString ((show x) ++ y) p
+
 eval _ _ _ = error "cannot evaluate this expression"
 
 getDefaultValue :: Token -> Token
