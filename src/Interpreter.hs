@@ -62,6 +62,7 @@ data Statement = Assignment Lexer.Token Expression
                | Read Lexer.Token
                | If Expression Statement Statement
                | While Expression Statement
+               | Function Lexer.Token Statement
                | Chain [Statement]
                deriving (Show)
 

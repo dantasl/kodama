@@ -16,7 +16,7 @@ import System.IO.Unsafe
 
 program :: ParsecT [Token] Memory IO([Statement])
 program = do
-            a <- many stmts
+            a <- many (choice [(try stmts) <|> (try func)])
             eof
             return (a)
 
@@ -24,6 +24,18 @@ stmts :: ParsecT [Token] Memory IO(Statement)
 stmts = do
           a <- choice [(try ioStm), (try varDeclaration), (try assign), (try ifStm), (try whileStm)]
           return (a)
+
+func :: ParsecT [Token] Memory IO(Statement)
+func = do
+         id <- (idToken <?> "identifier")
+         _ <- (openRoundToken <?> "(")
+         _ <- (closeRoundToken <?> ")")
+         _ <- (colonToken <?> ":")
+         _ <- (openCurlyToken <?> "{")
+         s <- many stmts
+         _ <- (closeCurlyToken <?> "}")
+         let cs = Chain s
+         return (Interpreter.Function id cs)
 
 varDeclaration :: ParsecT [Token] Memory IO(Statement)
 varDeclaration = do
