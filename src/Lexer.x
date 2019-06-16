@@ -75,8 +75,8 @@ tokens :-
   bool { \p s -> TypeBoolean (getLineColumn p) }
   let { \p s -> Let (getLineColumn p) }
   const { \p s -> Const (getLineColumn p) }
-  true {\p s -> ValueBool True (getLineColumn p) }
-  false {\p s -> ValueBool False (getLineColumn p) }
+  True {\p s -> ValueBool True (getLineColumn p) }
+  False {\p s -> ValueBool False (getLineColumn p) }
   $digit+	{ \p s -> ValueInt (read s) (getLineColumn p) }
   $digit+\.$digit+ { \p s -> ValueFloat (read s) (getLineColumn p) }
   $alpha[$alpha $digit \_]*	  { \p s -> ID s (getLineColumn p) }

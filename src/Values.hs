@@ -23,12 +23,21 @@ extractValue (ValueString x p) = String x
 extractValue (ValueInt x p) = Int x
 extractValue (ValueFloat x p) = Float x
 
+extractBooleanValue :: Value -> Bool
+extractBooleanValue (Bool x) = x
+
 compatible :: Token -> Token -> Bool
 compatible (ValueBool _ _) (ValueBool _ _) = True
 compatible (ValueString _ _) (ValueString _ _) = True
 compatible (ValueInt _ _) (ValueInt _ _) = True
 compatible (ValueFloat _ _) (ValueFloat _ _) = True
 compatible _ _ = False
+
+convertStringToValue :: Token -> String -> Token
+convertStringToValue (ValueBool _ p) s = (ValueBool (read s) p)
+convertStringToValue (ValueString _ p) s = (ValueString s p)
+convertStringToValue (ValueInt _ p) s = (ValueInt (read s) p)
+convertStringToValue (ValueFloat _ p) s = (ValueFloat (read s) p)
 
 unaryEval :: Token -> Token -> Token
 unaryEval (Minus _) (ValueInt x p) = ValueInt (-x) p
@@ -68,6 +77,34 @@ eval (ValueFloat x p) (Power _) (ValueFloat y _) = ValueFloat (x ** y) p
 
 eval (ValueBool x p) (And _) (ValueBool y _) = ValueBool (x && y) p
 eval (ValueBool x p) (Or _) (ValueBool y _) = ValueBool (x || y) p
+
+eval (ValueInt x p) (Less _) (ValueInt y _) = ValueBool (x < y) p
+eval (ValueInt x p) (Less _) (ValueFloat y _) = ValueBool ((fromIntegral x) < y) p
+eval (ValueFloat x p) (Less _) (ValueInt y _) = ValueBool (x < (fromIntegral y)) p
+eval (ValueFloat x p) (Less _) (ValueFloat y _) = ValueBool (x < y) p
+
+eval (ValueInt x p) (LessEqual _) (ValueInt y _) = ValueBool (x <= y) p
+eval (ValueInt x p) (LessEqual _) (ValueFloat y _) = ValueBool ((fromIntegral x) <= y) p
+eval (ValueFloat x p) (LessEqual _) (ValueInt y _) = ValueBool (x <= (fromIntegral y)) p
+eval (ValueFloat x p) (LessEqual _) (ValueFloat y _) = ValueBool (x <= y) p
+
+eval (ValueInt x p) (More _) (ValueInt y _) = ValueBool (x > y) p
+eval (ValueInt x p) (More _) (ValueFloat y _) = ValueBool ((fromIntegral x) > y) p
+eval (ValueFloat x p) (More _) (ValueInt y _) = ValueBool (x > (fromIntegral y)) p
+eval (ValueFloat x p) (More _) (ValueFloat y _) = ValueBool (x > y) p
+
+eval (ValueInt x p) (MoreEqual _) (ValueInt y _) = ValueBool (x >= y) p
+eval (ValueInt x p) (MoreEqual _) (ValueFloat y _) = ValueBool ((fromIntegral x) >= y) p
+eval (ValueFloat x p) (MoreEqual _) (ValueInt y _) = ValueBool (x >= (fromIntegral y)) p
+eval (ValueFloat x p) (MoreEqual _) (ValueFloat y _) = ValueBool (x >= y) p
+
+eval (ValueString x p) (Plus _) (ValueString y _) = ValueString (x ++ y) p
+eval (ValueString x p) (Plus _) (ValueInt y _) = ValueString (x ++ (show y)) p
+eval (ValueString x p) (Plus _) (ValueFloat y _) = ValueString (x ++ (show y)) p
+eval (ValueString x p) (Plus _) (ValueBool y _) = ValueString (x ++ (show y)) p
+eval (ValueInt x p) (Plus _) (ValueString y _) = ValueString ((show x) ++ y) p
+eval (ValueFloat x p) (Plus _) (ValueString y _) = ValueString ((show x) ++ y) p
+eval (ValueBool x p) (Plus _) (ValueString y _) = ValueString ((show x) ++ y) p
 
 eval _ _ _ = error "cannot evaluate this expression"
 

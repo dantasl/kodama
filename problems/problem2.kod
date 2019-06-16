@@ -4,32 +4,40 @@ let intervalo_tres = 0;
 let intervalo_quatro = 0;
 let input_usuario = 0;
 
-while (true)
+while (input_usuario >= 0)
 {
-    input(input_usuario);
-    if (input_usuario < 0)
-    {
-        break;
-    }    
+    input_usuario = read();
     if (input_usuario >= 0 and input_usuario <= 25)
     {
         intervalo_um = intervalo_um + 1;
     }
-    else if (input_usuario >= 26 and input_usuario <= 50)
+    else
     {
-        intervalo_dois = intervalo_dois + 1;
-    }
-    else if (input_usuario >= 51 and input_usuario <= 75)
-    {
-        intervalo_tres = intervalo_tres + 1;
-    }
-    else if (input_usuario >= 76 and input_usuario <= 100)
-    {
-        intervalo_quatro = intervalo_quatro + 1;
+        if (input_usuario >= 26 and input_usuario <= 50)
+        {
+            intervalo_dois = intervalo_dois + 1;
+        }
+        else
+        {
+            if (input_usuario >= 51 and input_usuario <= 75)
+            {
+                intervalo_tres = intervalo_tres + 1;
+            }
+            else
+            {
+                if (input_usuario >= 76 and input_usuario <= 100)
+                {
+                    intervalo_quatro = intervalo_quatro + 1;
+                }
+                else {
+
+                }
+            }
+        }
     }
 }
 
-print("Intervalo [0, 25] possui " + intervalo_um + " números.");
-print("Intervalo [26, 50] possui " + intervalo_dois + " números.");
-print("Intervalo [51, 75] possui " + intervalo_tres + " números.");
-print("Intervalo [76, 100] possui " + intervalo_quatro + " números.");
+println("Intervalo [0, 25] possui " + intervalo_um + " numeros.");
+println("Intervalo [26, 50] possui " + intervalo_dois + " numeros.");
+println("Intervalo [51, 75] possui " + intervalo_tres + " numeros.");
+println("Intervalo [76, 100] possui " + intervalo_quatro + " numeros.");
