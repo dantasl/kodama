@@ -293,8 +293,14 @@ getTokensAux fn = do {fh <- openFile fn ReadMode;
 parser :: [Token] -> IO (Either ParseError [Statement])
 parser tokens = runParserT program [] "Failed" tokens
 
-main :: String -> IO ()
-main filepath = case unsafePerformIO (parser (getTokens filepath)) of
+main :: IO ()
+main = case unsafePerformIO (parser (getTokens "exemplo.kod")) of
             { Left err -> print err;
-                Right ans -> evalStateT (evaluate ans) []
+              Right ans -> evalStateT (evaluate ans) []
+            }
+
+main' :: String -> IO ()
+main' filepath = case unsafePerformIO (parser (getTokens filepath)) of
+            { Left err -> print err;
+              Right ans -> evalStateT (evaluate ans) []
             }
