@@ -121,9 +121,9 @@ evalUnaryMExpression mem Negate exp = (unaryEval (Lexer.Minus (0,0)) (evalExpres
 
 evalBinaryMExpression :: Memory -> MathOperator -> MExpression -> MExpression -> Lexer.Token
 evalBinaryMExpression mem Addition exp1 exp2 = (eval (evalExpression mem (MathExpression exp1)) (Lexer.Plus (0,0)) (evalExpression mem (MathExpression exp2)))
-evalBinaryMExpression mem Multiplication exp1 exp2 = (eval (evalExpression mem (MathExpression exp1)) (Lexer.Minus (0,0)) (evalExpression mem (MathExpression exp2)))
-evalBinaryMExpression mem Division exp1 exp2 = (eval (evalExpression mem (MathExpression exp1)) (Lexer.Multiply (0,0)) (evalExpression mem (MathExpression exp2)))
-evalBinaryMExpression mem Subtraction exp1 exp2 = (eval (evalExpression mem (MathExpression exp1)) (Lexer.Divide (0,0)) (evalExpression mem (MathExpression exp2)))
+evalBinaryMExpression mem Multiplication exp1 exp2 = (eval (evalExpression mem (MathExpression exp1)) (Lexer.Multiply (0,0)) (evalExpression mem (MathExpression exp2)))
+evalBinaryMExpression mem Division exp1 exp2 = (eval (evalExpression mem (MathExpression exp1)) (Lexer.Divide (0,0)) (evalExpression mem (MathExpression exp2)))
+evalBinaryMExpression mem Subtraction exp1 exp2 = (eval (evalExpression mem (MathExpression exp1)) (Lexer.Minus (0,0)) (evalExpression mem (MathExpression exp2)))
 evalBinaryMExpression mem Power exp1 exp2 = (eval (evalExpression mem (MathExpression exp1)) (Lexer.Power (0,0)) (evalExpression mem (MathExpression exp2)))
 evalBinaryMExpression mem Mod exp1 exp2 = (eval (evalExpression mem (MathExpression exp1)) (Lexer.Mod (0,0)) (evalExpression mem (MathExpression exp2)))
 
